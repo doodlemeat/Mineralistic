@@ -3,7 +3,7 @@
 _**Infinite procedurally-generated 2D platformer**_
 
 <!-- Add screenshots here later -->
-![alternate text](http://imgur.com/ylLnXA6)
+![Alt text](http://imgur.com/ylLnXA6 "Optional title")
 
 _Mineralistic_ is a 2014 summer project I'm making on **C++** with **SFML**.
 

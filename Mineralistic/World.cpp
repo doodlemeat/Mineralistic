@@ -8,36 +8,59 @@
 #include <iostream>
 #include "TileStop.h"
 #include "Logger.h"
+#include "Material.h"
+#include "PhysicsScale.h"
+#include "Box2D/Box2D.h"
+#include "Tile.h"
 
-World::World(sf::Vector2i pChunkSize, sf::Vector2i pTileSize, sf::Texture pTileset ,ObjectManager *pObjectManager)
+World::World(sf::Vector2i pChunkSize, sf::Vector2i pTileSize, sf::Texture pTileset, ObjectManager *pObjectManager, b2World *pB2World)
 {
 	mTileSize = pTileSize;
 	mChunkTileSize = pChunkSize;
 	mChunkSize = sf::Vector2i(mTileSize.x * mChunkTileSize.x, mTileSize.y * mChunkTileSize.y);
 	mTileset = pTileset;
 	mObjectManager = pObjectManager;
+	mB2World = pB2World;
 
-	mNoiseModule.SetFrequency(0.1);
+	mNoiseModule.SetFrequency(0.08);
 	mNoiseModule.SetSeed(thor::random(INT_MIN, INT_MAX));
 	mNoiseModule.SetNoiseQuality(noise::QUALITY_BEST);
 }
 
 World::~World()
 {
+	auto it = mChunks.begin();
+	while (it != mChunks.end())
+	{
+		delete (*it);
+		(*it) = nullptr;
+		++it;
+	}
+
+	auto itTileStop = mTileStops.begin();
+	while (itTileStop != mTileStops.end())
+	{
+		delete (*itTileStop);
+		(*itTileStop) = nullptr;
+		++itTileStop;
+	}
+
+	auto itMaterial = mMaterials.begin();
+	while (itMaterial != mMaterials.end())
+	{
+		delete (*itMaterial);
+		(*itMaterial) = nullptr;
+		++itMaterial;
+	}
 }
 
 void World::update(float dt)
 {
 	// Check if we can load more chunks
-	sf::Vector2f playerPosition = mObjectManager->getObject("Player")->getSprite()->getPosition();
-	Chunk *playerChunk = getChunkAt(playerPosition);
+	sf::Vector2f playerPosition = WorldHelper::toWorldPositionFromSFMLPosition(mObjectManager->getObject("Player")->getSprite()->getPosition());
 
-	// We always want at least one chunk loaded from the player chunk in all 8 directions, like this pattern
-	/*
-		C C C
-		C P C
-		C C C
-	*/
+	Chunk *playerChunk = getChunkByWorldPosition(playerPosition);
+
 	sf::Vector2i playerChunkPosition = playerChunk->getPosition();
 
 	sf::Vector2i NW(playerChunkPosition.x - 1, playerChunkPosition.y - 1); // north west
@@ -49,31 +72,17 @@ void World::update(float dt)
 	sf::Vector2i S (playerChunkPosition.x    , playerChunkPosition.y + 1); // south
 	sf::Vector2i SE(playerChunkPosition.x + 1, playerChunkPosition.y + 1); // south east
 
-	getChunk(NW);
-	getChunk(N);
-	getChunk(NE);
-	getChunk(W);
-	getChunk(E);
-	getChunk(SW);
-	getChunk(S);
-	getChunk(SE);
+	getChunkByChunkPosition(NW);
+	getChunkByChunkPosition(N);
+	getChunkByChunkPosition(NE);
+	getChunkByChunkPosition(W);
+	getChunkByChunkPosition(E);
+	getChunkByChunkPosition(SW);
+	getChunkByChunkPosition(S);
+	getChunkByChunkPosition(SE);
 }
 
-Chunk *World::getChunkAt(sf::Vector2f pPosition)
-{
-	sf::Vector2i chunkPosition(static_cast<int>(std::floor(pPosition.x / mChunkSize.x)), static_cast<int>(std::floor(pPosition.y / mChunkSize.y)));
-	for (auto &chunk : mChunks)
-	{
-		if (chunk->isPosition(chunkPosition))
-		{
-			return chunk;
-		}
-	}
-
-	return loadChunk(chunkPosition);
-}
-
-Chunk *World::getChunk(sf::Vector2i pPosition)
+Chunk *World::getChunkByChunkPosition(sf::Vector2i pPosition)
 {
 	for (auto &chunk : mChunks)
 	{
@@ -86,13 +95,15 @@ Chunk *World::getChunk(sf::Vector2i pPosition)
 	return loadChunk(pPosition);
 }
 
+Chunk *World::getChunkByWorldPosition(sf::Vector2f pPosition)
+{
+	sf::Vector2i chunkPosition = WorldHelper::chunkPosition(pPosition);
+	return getChunkByChunkPosition(chunkPosition);
+}
+
 Chunk *World::loadChunk(sf::Vector2i pPosition)
 {
-	sf::Vector2i chunkPos = pPosition;
-	pPosition.x *= mChunkTileSize.x;
-	pPosition.y *= mChunkTileSize.y;
-	sf::FloatRect bounds(static_cast<sf::Vector2f>(pPosition), sf::Vector2f(static_cast<float>(mChunkTileSize.x), static_cast<float>(mChunkTileSize.y)));
-
+	sf::FloatRect bounds(WorldHelper::toWorldPositionFromChunkPosition(pPosition), sf::Vector2f(static_cast<float>(mChunkTileSize.x), static_cast<float>(mChunkTileSize.y)));
 	noise::utils::NoiseMap heightMap;
 	noise::utils::NoiseMapBuilderPlane heightMapBuilder;
 	heightMapBuilder.SetSourceModule(mNoiseModule);
@@ -101,8 +112,8 @@ Chunk *World::loadChunk(sf::Vector2i pPosition)
 	heightMapBuilder.SetBounds(bounds.left, bounds.left + bounds.width - 1, bounds.top, bounds.top + bounds.height - 1);
 	heightMapBuilder.Build();
 
-	Chunk *chunk = new Chunk(this);
-	chunk->setPosition(chunkPos);
+	Chunk *chunk = new Chunk(this, mB2World);
+	chunk->setPosition(pPosition);
 	chunk->buildChunk(&heightMap);
 	chunk->setTexture(&mTileset);
 	mChunks.push_back(chunk);
@@ -131,8 +142,13 @@ sf::Vector2i World::getTileSize()
 
 void World::addTileStop(std::string pName, float pHeightStop, sf::Vector2i pPosition)
 {
-	TileStop *tileStop = new TileStop(pName);
-	tileStop->setTexturePosition(pPosition);
+	Material *material = getMaterial(pName);
+	if (material == nullptr)
+	{
+		return;
+	}
+
+	TileStop *tileStop = new TileStop(material);
 	tileStop->setHeightStop(pHeightStop);
 	mTileStops.push_back(tileStop);
 }
@@ -147,4 +163,181 @@ TileStop *World::getTileStopAt(float pHeightValue)
 		}
 	}
 	return mTileStops.back();
+}
+
+void World::registerMaterial(Material *pMaterial)
+{
+	for (auto &material : mMaterials)
+	{
+		if (material->getName() == pMaterial->getName())
+		{
+			std::cout << "Failed to add material " << pMaterial->getName() << ". Material already exist" << std::endl;
+			break;
+			return;
+		}
+	}
+
+	mMaterials.push_back(pMaterial);
+}
+
+Material * World::getMaterial(std::string pName)
+{
+	for (auto &material : mMaterials)
+	{
+		if (material->getName() == pName)
+		{
+			return material;
+		}
+	}
+
+	std::cout << "Failed to find material with name " << pName << ". The material does not exist." << std::endl;
+	return nullptr;
+}
+
+b2Body *World::createBody(sf::Vector2f pPosition)
+{
+	b2BodyDef bodyDef;
+	bodyDef.angle = 0;
+	bodyDef.type = b2_staticBody;
+	b2Vec2 position = PhysicsScale::gameToPhys(pPosition);
+	bodyDef.position.Set(position.x, position.y);
+
+	b2Body *body = mB2World->CreateBody(&bodyDef);
+
+	b2PolygonShape boxShape;
+	sf::Vector2f boundingBox(32, 32);
+	b2Vec2 boundingBoxPhysic = PhysicsScale::gameToPhys(boundingBox);
+	boxShape.SetAsBox(boundingBoxPhysic.x, boundingBoxPhysic.y);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &boxShape;
+	fixtureDef.density = 1;
+	fixtureDef.friction = 0;
+	body->CreateFixture(&fixtureDef);
+	return body;
+}
+
+b2Body *World::createLine(sf::Vector2f from, sf::Vector2f to)
+{
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_staticBody;
+
+	float centerX = PhysicsScale::gameToPhys((from.x + to.x) / 2.f);
+	float centerY = PhysicsScale::gameToPhys((from.y + to.y) / 2.f);
+
+	float length = PhysicsScale::gameToPhys(std::sqrtf((from.x - to.x) * (from.x - to.x) + (from.y - to.y) * (from.y - to.y)));
+
+	bodyDef.position.Set(centerX, centerY);
+	bodyDef.angle = 0;
+
+	b2Body *body = mB2World->CreateBody(&bodyDef);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.density = 1;
+	fixtureDef.friction = 0;
+
+	b2EdgeShape shape;
+	shape.Set(b2Vec2(-length / 2.f, 0), b2Vec2(length / 2.f, 0));
+	fixtureDef.shape = &shape;
+
+	body->CreateFixture(&fixtureDef);
+	body->SetTransform(b2Vec2(centerX, centerY), std::atan2f(to.y - from.y, to.x - from.x));
+	return body;
+}
+
+b2Body *World::createChain(sf::Vector2f *pVertices, int pLength)
+{
+	b2BodyDef bodyDef;
+	bodyDef.position.Set(0.f, 0.f);
+	b2Body *body = mB2World->CreateBody(&bodyDef);
+
+	b2ChainShape shape;
+
+	b2Vec2 vertices[4];
+
+	for (int i = 0; i < pLength; i++)
+	{
+		vertices[i] = PhysicsScale::gameToPhys(pVertices[i]);
+	}
+	shape.CreateLoop(vertices, 4);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.density = 1;
+	fixtureDef.shape = &shape;
+
+	body->CreateFixture(&fixtureDef);
+
+	return body;
+}
+
+Tile *World::getClosestTileInDirection(sf::Vector2f pPosition, Direction direction, unsigned int length)
+{
+	// Get start tile
+	Tile *startTile = getTileByWorldPosition(pPosition);
+	
+	int yCap = 0;
+	int xCap = 0;
+	float offsetX = pPosition.x;
+	float offsetY = pPosition.y;
+	
+	if (direction == NORTH)
+	{
+		yCap = offsetY - length;
+		for (int y = offsetY; y > yCap; y--)
+		{
+			Tile *next = getTileByWorldPosition(sf::Vector2f(offsetX, static_cast<float>(y)));
+			if (next->getMaterial()->isCollidable())
+			{
+				return next;
+			}
+		}
+	}
+	throw WorldException("Failed to find tile");
+}
+
+Tile *World::getTileByWorldPosition(sf::Vector2f pPosition)
+{
+	Chunk* chunk = getChunkByWorldPosition(pPosition);
+	return chunk->getTileAt(WorldHelper::clampTilePosition(pPosition));
+}
+
+namespace WorldHelper
+{
+	sf::Vector2f toWorldPositionFromSFMLPosition(sf::Vector2f pPosition)
+	{
+		return pPosition / tile_size;
+	}
+
+	sf::Vector2f toWorldPositionFromChunkPosition(sf::Vector2i pPosition)
+	{
+		sf::Vector2f worldPosition(0, 0);
+		worldPosition.x = pPosition.x * chunk_size;
+		worldPosition.y = pPosition.y * chunk_size;
+		return worldPosition;
+	}
+
+	sf::Vector2i chunkPosition(sf::Vector2f pPosition)
+	{
+		sf::Vector2i chunkPos(0, 0); 
+		chunkPos.x = std::floor(pPosition.x / chunk_size);
+		chunkPos.y = std::floor(pPosition.y / chunk_size);
+		return chunkPos;
+	}
+
+	sf::Vector2i tilePosition(sf::Vector2f pPosition)
+	{
+		sf::Vector2i tilePosition(0, 0);
+		tilePosition.x = static_cast<int>(std::floor(std::fmod(pPosition.x, chunk_size)));
+		tilePosition.y = static_cast<int>(std::floor(std::fmod(pPosition.y, chunk_size)));
+		return tilePosition;
+	}
+
+	sf::Vector2f clampTilePosition(sf::Vector2f pPosition)
+	{
+		if (pPosition.x < 0.f) pPosition.x += 8.f;
+		else if (pPosition.x > 8.f) pPosition.x -= 8.f;
+		if (pPosition.y < 0.f) pPosition.y += 8.f;
+		else if (pPosition.y > 8.f) pPosition.y -= 8.f;
+		return pPosition;
+	}
 }

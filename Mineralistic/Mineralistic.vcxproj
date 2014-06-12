@@ -53,12 +53,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../deps/SFML/include/;../deps/Thor/include/;../deps/Aurora/;../deps/Box2D/;../deps/libnoise/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../deps/SFML/include/;../deps/Thor/include/;../deps/Aurora/;../deps/Box2D/;../deps/libnoise/include/;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../deps/SFML/lib/;../deps/Thor/lib/;../deps/Box2D/lib/;../deps/libnoise/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../deps/SFML/lib/;../deps/Thor/lib/;../deps/Box2D/lib/;../deps/libnoise/lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-window-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;sfml-system-d.lib;sfml-network-d.lib;thor-d.lib;Box2D-d.lib;%(AdditionalDependencies);libnoise.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -71,26 +71,31 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../deps/SFML/include/;../deps/Thor/include/;../deps/Aurora/;../deps/Box2D/;../deps/libnoise/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../deps/SFML/include/;../deps/Thor/include/;../deps/Aurora/;../deps/Box2D/;../deps/libnoise/include/;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>../deps/SFML/lib/;../deps/Thor/lib/;../deps/Box2D/lib/;../deps/libnoise/lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../deps/SFML/lib/;../deps/Thor/lib/;../deps/Box2D/lib/;../deps/libnoise/lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32</AdditionalLibraryDirectories>
       <AdditionalDependencies>thor.lib;sfml-graphics.lib;sfml-window.lib;sfml-network.lib;sfml-audio.lib;sfml-system.lib;Box2D.lib;%(AdditionalDependencies);libnoise.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Angle.cpp" />
+    <ClCompile Include="AudioSystem.cpp" />
+    <ClCompile Include="B2ContactListener.cpp" />
     <ClCompile Include="Box2DWorldDraw.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="noiseutils.cpp" />
+    <ClCompile Include="PhysicsHelper.cpp" />
     <ClCompile Include="PhysicsScale.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileStop.cpp" />
+    <ClCompile Include="B2UserData.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -107,6 +112,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Angle.h" />
+    <ClInclude Include="AudioSystem.h" />
+    <ClInclude Include="B2ContactListener.h" />
     <ClInclude Include="Box2DWorldDraw.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="GameEngine.h" />
@@ -115,17 +122,20 @@
     <ClInclude Include="GameStateAsset.h" />
     <ClInclude Include="IntroState.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="noiseutils.h" />
     <ClInclude Include="ObjectGroup.h" />
     <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="PhysicsHelper.h" />
     <ClInclude Include="PhysicsScale.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
     <ClInclude Include="ResourceHolder.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileStop.h" />
+    <ClInclude Include="B2UserData.h" />
     <ClInclude Include="WindowManager.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

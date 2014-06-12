@@ -6,6 +6,7 @@
 
 class Tile;
 class World;
+class b2World;
 
 namespace noise
 {
@@ -18,25 +19,29 @@ namespace noise
 class Chunk: public sf::Drawable
 {
 public:
-	Chunk(World *pWorld);
+	Chunk(World *pWorld, b2World *pB2World);
 	~Chunk();
 
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
-	sf::Sprite *getSprite();
 
 	bool isPosition(sf::Vector2i pPosition);
 	void setPosition(sf::Vector2i pPosition);
 	void setTexture(sf::Texture *pTexture);
 	void buildChunk(noise::utils::NoiseMap *pHeightMap);
 	sf::Vector2i getPosition();
+
+	// Global chunk position
+	Tile *getTileAt(sf::Vector2f pPosition);
+
+	// Local chunk position
+	Tile *getTile(sf::Vector2i pPosition);
+	World *getWorld();
+	b2World *getB2World();
 private:
 	World* mWorld;
+	b2World *mB2World;
 	sf::Vector2i mPosition;
 	std::vector<std::vector<Tile*>> mTiles;
-
-	//
-	sf::Sprite *sprite;
-	//
 
 	sf::Texture mTexture;
 	sf::VertexArray mVertices;

@@ -21,4 +21,8 @@ namespace Logger
 		std::cout << pOut << std::endl;
 	}
 
+	void rect(sf::FloatRect pbounds)
+	{
+		std::cout << "FloatRect: (" << pbounds.left << "," << pbounds.top << "," << pbounds.width << "," << pbounds.height << ")" << std::endl;
+	}
 }

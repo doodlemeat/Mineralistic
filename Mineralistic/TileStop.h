@@ -4,22 +4,21 @@
 #include "SFML\System\Vector2.hpp"
 #include "SFML\Graphics\Rect.hpp"
 
+class Material;
+
 class TileStop
 {
 public:
-	TileStop(std::string pName);
+	TileStop(Material *pMaterial);
 	~TileStop();
 
 	void setHeightStop(float pHeightStop);
-	void setTexturePosition(sf::Vector2i pPosition);
-
 	float getHeightStop();
-	sf::Vector2i getTexturePosition();
-	std::string getName();
+
+	Material *getMaterial();
 
 private:
-	std::string mName;
+	Material *mMaterial;
 	float mHeightStop;
-	sf::Vector2i mTexturePosition;
 };
 

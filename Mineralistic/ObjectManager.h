@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include "Thor/Input/ActionMap.hpp"
 
 class ObjectGroup;
 class GameObject;
@@ -19,7 +20,7 @@ public:
 
 	void addObject(GameObject *pObject);
 	void addGroup(ObjectGroup *pGroup);
-	void update(float dt);
+	void update(float dt, thor::ActionMap<std::string> *pActionMap);
 	std::vector<ObjectGroup*> getGroups();
 	std::vector<GameObject*> getObjects();
 

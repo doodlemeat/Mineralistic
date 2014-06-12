@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "ObjectGroup.h"
 #include <iostream>
+#include "Thor\Input\ActionMap.hpp"
 
 
 ObjectManager::ObjectManager()
@@ -131,7 +132,7 @@ std::vector<GameObject*> ObjectManager::getObjects()
 	return mGameObjects;
 }
 
-void ObjectManager::update(float dt)
+void ObjectManager::update(float dt, thor::ActionMap<std::string> *pActionMap)
 {
-	getObject("Player")->update(dt);
+	getObject("Player")->update(dt, pActionMap);
 }

@@ -1,11 +1,10 @@
 #include "TileStop.h"
+#include "Material.h"
 
-
-TileStop::TileStop(std::string pName)
+TileStop::TileStop(Material *pMaterial)
 {
-	mName = pName;
+	mMaterial = pMaterial;
 }
-
 
 TileStop::~TileStop()
 {
@@ -16,22 +15,12 @@ void TileStop::setHeightStop(float pHeightStop)
 	mHeightStop = pHeightStop;
 }
 
-void TileStop::setTexturePosition(sf::Vector2i pPosition)
-{
-	mTexturePosition = pPosition;
-}
-
 float TileStop::getHeightStop()
 {
 	return mHeightStop;
 }
 
-sf::Vector2i TileStop::getTexturePosition()
+Material *TileStop::getMaterial()
 {
-	return mTexturePosition;
-}
-
-std::string TileStop::getName()
-{
-	return mName;
+	return mMaterial;
 }

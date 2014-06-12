@@ -17,11 +17,11 @@ namespace PhysicsScale
 
 	b2Vec2 gameToPhys(const sf::Vector2f &vec)
 	{
-		return b2Vec2(gameToPhys(vec.x), gameToPhys(-vec.y));
+		return b2Vec2(gameToPhys(vec.x), gameToPhys(vec.y));
 	}
 	sf::Vector2f physToGame(const b2Vec2 &vec)
 	{
-		return sf::Vector2f(physToGame(vec.x), physToGame(-vec.y));
+		return sf::Vector2f(physToGame(vec.x), physToGame(vec.y));
 	}
 
 	float gameToPhysAngle(float angle)

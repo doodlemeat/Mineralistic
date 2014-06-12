@@ -8,22 +8,29 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include <Thor/Input/ActionMap.hpp>
+#include "Audiosystem.h"
 
 GameEngine::GameEngine(std::string pTitle, int pWindowWidth, int pWindowHeight)
 {
-	this->mRunning = true;
+	mRunning = true;
 
-	this->mActionMap = new thor::ActionMap<std::string>();
-	this->mActionMap->operator[]("Closed_Window") = thor::Action(sf::Event::Closed);
+	mActionMap = new thor::ActionMap<std::string>();
+	mActionMap->operator[]("Closed_Window") = thor::Action(sf::Event::Closed);
 
-	this->mResourceHolder = new ResourceHolder();
+	mResourceHolder = new ResourceHolder();
+	mAudioSystem = new AudioSystem();
+	mAudioSystem->createMusic("Ambient_1", "../assets/music/ambient_1.wav");
+	mAudioSystem->createSound("Throw_Rope", mResourceHolder->getSound("throw_rope.ogg"));
+	mAudioSystem->createSound("Rope_Attached", mResourceHolder->getSound("rope_attached.ogg"));
+	//mAudioSystem->playSound("Rope_Attached", true);
 
-	this->mWindowManager = new WindowManager(pTitle, sf::Vector2i(pWindowWidth, pWindowHeight));
+	mWindowManager = new WindowManager(pTitle, sf::Vector2i(pWindowWidth, pWindowHeight));
 
-	this->mStateAssets = new GameStateAsset();
-	this->mStateAssets->gameEngine = this;
-	this->mStateAssets->windowManager = mWindowManager;
-	this->mStateAssets->resourceHolder = mResourceHolder;
+	mStateAssets = new GameStateAsset();
+	mStateAssets->gameEngine = this;
+	mStateAssets->windowManager = mWindowManager;
+	mStateAssets->resourceHolder = mResourceHolder;
+	mStateAssets->audioSystem = mAudioSystem;
 }
 
 GameEngine::~GameEngine()
@@ -130,6 +137,7 @@ void GameEngine::run()
 {
 	while (mRunning)
 	{
+		mAudioSystem->update();
 		this->updateEvents();
 
 		if (mActionMap->isActive("Closed_Window"))
@@ -167,6 +175,9 @@ void GameEngine::exit()
 
 	delete this->mWindowManager;
 	this->mWindowManager = nullptr;
+
+	delete mAudioSystem;
+	mAudioSystem = nullptr;
 
 	delete this->mStateAssets;
 	this->mStateAssets = nullptr;

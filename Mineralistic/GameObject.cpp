@@ -101,3 +101,23 @@ void GameObject::setManager(ObjectManager *pObjectManager)
 {
 	mObjectManager = pObjectManager;
 }
+
+void GameObject::setBody(b2Body *pBody)
+{
+	mBody = pBody;
+}
+
+b2Body *GameObject::getBody()
+{
+	return mBody;
+}
+
+void GameObject::update(float dt)
+{
+
+}
+
+void GameObject::update(float dt, thor::ActionMap<std::string> *pActionMap /*= nullptr*/)
+{
+
+}

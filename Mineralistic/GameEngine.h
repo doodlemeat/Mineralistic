@@ -7,6 +7,7 @@
 class GameState;
 class WindowManager;
 class ResourceHolder;
+class AudioSystem;
 struct GameStateAsset;
 
 namespace thor
@@ -38,6 +39,7 @@ private:
 	GameStateAsset* mStateAssets;
 	WindowManager *mWindowManager;
 	ResourceHolder *mResourceHolder;
+	AudioSystem *mAudioSystem;
 	std::vector<GameState*> mActiveStates;
 	thor::ActionMap<std::string>* mActionMap;
 	bool mRunning;

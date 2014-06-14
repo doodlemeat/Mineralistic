@@ -88,6 +88,7 @@
     <ClCompile Include="B2ContactListener.cpp" />
     <ClCompile Include="Box2DWorldDraw.cpp" />
     <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="Hook.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="noiseutils.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GameStateAsset.h" />
+    <ClInclude Include="Hook.h" />
     <ClInclude Include="IntroState.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Material.h" />

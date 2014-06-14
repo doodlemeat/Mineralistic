@@ -5,7 +5,6 @@
 
 ObjectGroup::ObjectGroup(std::string pName)
 {
-	assert(mName.length() > 0);
 	mNameIsSet = true;
 	mName = pName;
 }
@@ -40,13 +39,13 @@ bool ObjectGroup::isName(std::string pName)
 
 void ObjectGroup::setName(std::string pName)
 {
-	assert(pName.length() > 0);
 	mName = pName;
 	mNameIsSet = true;
 }
 
 GameObject *ObjectGroup::addGameObject(GameObject *pObject, std::string pName)
 {
+	mGameObjects.push_back(pObject);
 	return nullptr;
 }
 

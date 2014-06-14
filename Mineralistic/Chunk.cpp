@@ -82,7 +82,6 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			if (heightValue > 1.f) heightValue = 1.f;
 			if (heightValue < -1.f) heightValue = -1.f;
 
-
 			// Get a pointer to the current tile's quad
 			sf::Vertex *quad = &mVertices[(y + x * pHeightMap->GetWidth()) * 4];
 			
@@ -121,10 +120,10 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 				mWorld->createChain(vertices, 4);
 			}
 
-			sf::Vector2i tilePosition = mPosition + sf::Vector2i(x, y);
+			sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromChunkPosition(mPosition) + sf::Vector2f(x, y);
 
 			// Instantiate a new Tile object with the noise value, this doesn't do anything yet..
-			mTiles[x][y] = new Tile(this, tilePosition, material, body, quad);
+			mTiles[x][y] = new Tile(this, worldPosition, material, body, quad);
 		}
 	}
 }

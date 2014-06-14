@@ -3,6 +3,9 @@
 #include "ObjectGroup.h"
 #include <iostream>
 #include "Thor\Input\ActionMap.hpp"
+#include "Hook.h"
+#include "ResourceHolder.h"
+#include "World.h"
 
 
 ObjectManager::ObjectManager()
@@ -101,6 +104,7 @@ void ObjectManager::addGroup(ObjectGroup *pGroup)
 		object->setManager(this);
 	}
 
+	std::cout << "Added group " << pGroup->getName() << " to the object manager" << std::endl;
 	mObjectGroups.push_back(pGroup);
 }
 
@@ -135,4 +139,33 @@ std::vector<GameObject*> ObjectManager::getObjects()
 void ObjectManager::update(float dt, thor::ActionMap<std::string> *pActionMap)
 {
 	getObject("Player")->update(dt, pActionMap);
+	
+	for (auto &hook : getGroup("hooks")->getObjects())
+	{
+		hook->update(dt);
+	}
+}
+
+AudioSystem *ObjectManager::getAudioSystem()
+{
+	return mAudioSystem;
+}
+
+void ObjectManager::setAudioSystem(AudioSystem *pAudiosystem)
+{
+	mAudioSystem = pAudiosystem;
+}
+
+void ObjectManager::spawnHook(sf::Vector2f pWorldPosition)
+{
+	Hook *hook = new Hook();
+	hook->getSprite()->setTexture(mResourceHolder->getTexture("hook.png"));
+	hook->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
+	hook->getSprite()->setOrigin(32, 32);
+	getGroup("hooks")->addGameObject(hook);
+}
+
+void ObjectManager::setResourceHolder(ResourceHolder *pResourceHolder)
+{
+	mResourceHolder = pResourceHolder;
 }

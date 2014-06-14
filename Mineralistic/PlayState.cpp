@@ -18,6 +18,7 @@
 #include "B2UserData.h"
 #include "B2ContactListener.h"
 #include "Chunk.h"
+#include "ObjectGroup.h"
 
 PlayState::PlayState()
 {
@@ -38,12 +39,16 @@ void PlayState::entering()
 	std::cout << "Entering play state" << std::endl;
 
 	mObjectManager = new ObjectManager();
+	mObjectManager->setAudioSystem(mAssets->audioSystem);
+	mObjectManager->setResourceHolder(mAssets->resourceHolder);
 
 	mB2World = new b2World(b2Vec2(0.f, 30.f));
 	mB2World->SetAllowSleeping(true);
 
 	mContactListener = new B2ContactListener();
 	mB2World->SetContactListener(mContactListener);
+
+	mAssets->resourceHolder->getTexture("tileset.png").setSmooth(false);
 
 	mWorld = new World(sf::Vector2i(8, 8), sf::Vector2i(64, 64), mAssets->resourceHolder->getTexture("tileset.png"), mObjectManager, mB2World);
 	mWorld->registerMaterial(new Material("Air", false, sf::IntRect(64, 0, 64, 64)));
@@ -61,6 +66,9 @@ void PlayState::entering()
 	mDebug.setPosition(50, 50);
 	mDebug.setCharacterSize(24);
 	mDebug.setColor(sf::Color::White);
+
+	ObjectGroup *hookGroup = new ObjectGroup("hooks");
+	mObjectManager->addGroup(hookGroup);
 
 	setupPlayer();
 }
@@ -145,7 +153,7 @@ void PlayState::setupActions()
 	getActionMap()->operator[]("Jump") = thor::Action(sf::Keyboard::Up, thor::Action::Hold);
 	getActionMap()->operator[]("Walk_Left") = thor::Action(sf::Keyboard::Left, thor::Action::Hold);
 	getActionMap()->operator[]("Walk_Right") = thor::Action(sf::Keyboard::Right, thor::Action::Hold);
-	getActionMap()->operator[]("Throw_Rope") = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
+	getActionMap()->operator[]("Throw_Hook") = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
 	getActionMap()->operator[]("Toggle_Debug") = thor::Action(sf::Keyboard::F1, thor::Action::PressOnce);
 }
 

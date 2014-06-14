@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "World.h"
 #include "Chunk.h"
+#include <iostream>
 
 WindowManager::WindowManager(std::string pTitle, sf::Vector2i pWindowSize)
 {

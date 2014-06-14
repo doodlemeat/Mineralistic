@@ -20,6 +20,7 @@ namespace WorldHelper
 	const float chunk_size = 8.f;
 	const float tile_size = 64.f;
 
+	sf::Vector2f toSFMLPositionFromWorldPosition(sf::Vector2f pWorldPosition, bool pCenterOnTile = false);
 	sf::Vector2f toWorldPositionFromSFMLPosition(sf::Vector2f pPosition);
 	sf::Vector2f toWorldPositionFromChunkPosition(sf::Vector2i pPosition);
 	sf::Vector2i chunkPosition(sf::Vector2f pPosition);

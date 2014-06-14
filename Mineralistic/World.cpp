@@ -280,16 +280,33 @@ Tile *World::getClosestTileInDirection(sf::Vector2f pPosition, Direction directi
 	float offsetX = pPosition.x;
 	float offsetY = pPosition.y;
 	
-	if (direction == NORTH)
+	float offset = 0;
+	int cap = 0;
+	switch (direction)
 	{
-		yCap = offsetY - length;
-		for (int y = offsetY; y > yCap; y--)
+	case NORTH:
+		cap = offsetY - length;
+		offset = offsetY;
+		break;
+	case EAST:
+		cap = offsetX + length;
+		offset = offsetX;
+		break;
+	case SOUTH:
+		cap = offsetY + length;
+		offset = offsetY;
+		break;
+	case WEST:
+		cap = offsetX - length;
+		offset = offsetX;
+		break;
+	}
+	for (int i = offset; cap < offset ? i > cap : i > cap; cap < offset ? i-- : i++)
+	{
+		Tile *next = getTileByWorldPosition(cap < offset ? sf::Vector2f(offsetX, static_cast<float>(i)) : sf::Vector2f(static_cast<float>(i), offsetY));
+		if (next->getMaterial()->isCollidable())
 		{
-			Tile *next = getTileByWorldPosition(sf::Vector2f(offsetX, static_cast<float>(y)));
-			if (next->getMaterial()->isCollidable())
-			{
-				return next;
-			}
+			return next;
 		}
 	}
 	throw WorldException("Failed to find tile");
@@ -305,7 +322,8 @@ namespace WorldHelper
 {
 	sf::Vector2f toWorldPositionFromSFMLPosition(sf::Vector2f pPosition)
 	{
-		return pPosition / tile_size;
+		sf::Vector2f worldPosition = pPosition / tile_size;
+		return worldPosition;
 	}
 
 	sf::Vector2f toWorldPositionFromChunkPosition(sf::Vector2i pPosition)
@@ -327,17 +345,29 @@ namespace WorldHelper
 	sf::Vector2i tilePosition(sf::Vector2f pPosition)
 	{
 		sf::Vector2i tilePosition(0, 0);
-		tilePosition.x = static_cast<int>(std::floor(std::fmod(pPosition.x, chunk_size)));
-		tilePosition.y = static_cast<int>(std::floor(std::fmod(pPosition.y, chunk_size)));
+		tilePosition.x = std::fmod(pPosition.x, chunk_size);
+		tilePosition.y = std::fmod(pPosition.y, chunk_size);
 		return tilePosition;
 	}
 
 	sf::Vector2f clampTilePosition(sf::Vector2f pPosition)
 	{
-		if (pPosition.x < 0.f) pPosition.x += 8.f;
-		else if (pPosition.x > 8.f) pPosition.x -= 8.f;
-		if (pPosition.y < 0.f) pPosition.y += 8.f;
-		else if (pPosition.y > 8.f) pPosition.y -= 8.f;
-		return pPosition;
+		float xRemainder = std::fmod(pPosition.x, 8.f);
+		if (xRemainder < 0.f) xRemainder += 8.f;
+		float yRemainder = std::fmod(pPosition.y, 8.f);
+		if (yRemainder < 0.f) yRemainder += 8.f;
+
+		return sf::Vector2f(xRemainder, yRemainder);
+	}
+
+	sf::Vector2f toSFMLPositionFromWorldPosition(sf::Vector2f pWorldPosition, bool pCenterOnTile /*= false*/)
+	{
+		sf::Vector2f SFMLPosition = pWorldPosition * tile_size;
+		if (pCenterOnTile)
+		{
+			SFMLPosition.x += tile_size / 2.f;
+			SFMLPosition.y += tile_size / 2.f;
+		}
+		return SFMLPosition;
 	}
 }

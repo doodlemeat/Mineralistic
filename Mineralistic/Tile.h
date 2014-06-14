@@ -14,16 +14,16 @@ namespace sf
 class Tile
 {
 public:
-	Tile(Chunk *pChunk, sf::Vector2i pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad);
+	Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad);
 	~Tile();
-	sf::Vector2i getPosition();
+	sf::Vector2f getPosition();
 	Material *getMaterial();
 	b2Body *getBody();
 	void setBodyNull();
 	void setMaterial(Material *pMaterial);
 
 private:
-	sf::Vector2i mPosition;
+	sf::Vector2f mPosition;
 	Chunk *mChunk;
 	Material *mMaterial;
 	b2Body *mBody;

@@ -25,7 +25,7 @@ public:
 	void addAnimation(std::string pName, thor::FrameAnimation *pAnimation, sf::Time pTime);
 
 	virtual void update(float dt);
-	virtual void update(float dt, thor::ActionMap<std::string> *pActionMap = nullptr);
+	virtual void update(float dt, thor::ActionMap<std::string> *pActionMap);
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
 	
 	bool isName(std::string pName);

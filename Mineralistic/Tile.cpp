@@ -5,7 +5,7 @@
 #include "Box2D/Box2D.h"
 #include "SFML/Graphics/Vertex.hpp"
 
-Tile::Tile(Chunk *pChunk, sf::Vector2i pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad)
+Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad)
 {
 	mChunk = pChunk;
 	mMaterial = pMaterial;
@@ -19,7 +19,7 @@ Tile::~Tile()
 {
 }
 
-sf::Vector2i Tile::getPosition()
+sf::Vector2f Tile::getPosition()
 {
 	return mPosition;
 }
@@ -58,7 +58,7 @@ void Tile::setMaterial(Material *pMaterial)
 			mChunk->getB2World()->DestroyBody(mBody);
 			mBody = nullptr;
 		}
-		sf::Vector2f position = static_cast<sf::Vector2f>(mChunk->getPosition() + mPosition);
+		sf::Vector2f position = static_cast<sf::Vector2f>(mChunk->getPosition()) + mPosition;
 		mBody = mChunk->getWorld()->createBody(position);
 	}
 	else

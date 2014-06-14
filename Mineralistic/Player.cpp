@@ -5,7 +5,11 @@
 #include "Thor/Input/ActionMap.hpp"
 #include "PhysicsScale.h"
 #include "World.h"
+#include "ObjectManager.h"
 #include <iostream>
+#include "Audiosystem.h"
+#include "Tile.h"
+#include "Logger.h"
 
 Player::Player() : GameObject("Player")
 {
@@ -44,13 +48,16 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 		mBody->ApplyLinearImpulse(PhysicsScale::gameToPhys(sf::Vector2f(50, 0)), mBody->GetWorldCenter(), true);
 	}
 
-	if (pActionMap->isActive("Throw_Rope"))
+	if (pActionMap->isActive("Throw_Hook"))
 	{
 		if (mRopes > 0)
 		{
+			mObjectManager->getAudioSystem()->playSound("Throw_Hook", false);
 			try
 			{
 				Tile *targetTile = mWorld->getClosestTileInDirection(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()), World::NORTH, 10);
+				mObjectManager->spawnHook(targetTile->getPosition());
+				mObjectManager->getAudioSystem()->playSound("Hook_Attached", false);
 			}
 			catch (WorldException &e)
 			{

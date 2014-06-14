@@ -20,9 +20,8 @@ GameEngine::GameEngine(std::string pTitle, int pWindowWidth, int pWindowHeight)
 	mResourceHolder = new ResourceHolder();
 	mAudioSystem = new AudioSystem();
 	mAudioSystem->createMusic("Ambient_1", "../assets/music/ambient_1.wav");
-	mAudioSystem->createSound("Throw_Rope", mResourceHolder->getSound("throw_rope.ogg"));
-	mAudioSystem->createSound("Rope_Attached", mResourceHolder->getSound("rope_attached.ogg"));
-	//mAudioSystem->playSound("Rope_Attached", true);
+	mAudioSystem->createSound("Throw_Hook", mResourceHolder->getSound("throw_hook.ogg"));
+	mAudioSystem->createSound("Hook_Attached", mResourceHolder->getSound("hook_attached.ogg"));
 
 	mWindowManager = new WindowManager(pTitle, sf::Vector2i(pWindowWidth, pWindowHeight));
 

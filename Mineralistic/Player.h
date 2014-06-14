@@ -13,8 +13,8 @@ public:
 	Player();
 	~Player();
 
-	virtual void update(float dt, thor::ActionMap<std::string> *pActionMap);
-	virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
+	void update(float dt, thor::ActionMap<std::string> *pActionMap);
+	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 	sf::View *getView();
 	void centerOrigin();

@@ -49,9 +49,9 @@ GameObject *ObjectGroup::addGameObject(GameObject *pObject, std::string pName)
 	return nullptr;
 }
 
-std::vector<GameObject*> ObjectGroup::getObjects()
+std::vector<GameObject*> *ObjectGroup::getObjects()
 {
-	return mGameObjects;
+	return &mGameObjects;
 }
 
 bool ObjectGroup::hasName()

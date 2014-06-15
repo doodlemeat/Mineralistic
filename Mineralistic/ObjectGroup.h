@@ -18,7 +18,7 @@ public:
 	bool hasName();
 
 	GameObject *addGameObject(GameObject *pObject, std::string pName = "");
-	std::vector<GameObject*> getObjects();
+	std::vector<GameObject*> *getObjects();
 	void setManager(ObjectManager *pObjectManager);
 
 private:

@@ -274,41 +274,45 @@ Tile *World::getClosestTileInDirection(sf::Vector2f pPosition, Direction directi
 {
 	// Get start tile
 	Tile *startTile = getTileByWorldPosition(pPosition);
-	
-	int yCap = 0;
-	int xCap = 0;
+
+	// Setup a few variables to be used in the algorithm
 	float offsetX = pPosition.x;
 	float offsetY = pPosition.y;
 	
-	float offset = 0;
+	int offset = 0;
 	int cap = 0;
+
+	// Apprently, there are some special cases for negative world position coordinates
 	switch (direction)
 	{
 	case NORTH:
 		cap = offsetY - length;
-		offset = offsetY;
+		offset = static_cast<int>(offsetY);
+
+		if (offsetY < 0) cap--;
+		for (int i = offset - 1; i >= cap; i--)
+		{
+			Tile *next = getTileByWorldPosition(sf::Vector2f(offsetX, static_cast<float>(i)));
+			if (next->getMaterial()->isCollidable())
+			{
+				return next;
+			}
+		}
 		break;
-	case EAST:
+	case EAST: // TODO
 		cap = offsetX + length;
 		offset = offsetX;
 		break;
-	case SOUTH:
+	case SOUTH: // TODO
 		cap = offsetY + length;
 		offset = offsetY;
 		break;
-	case WEST:
+	case WEST: // TODO
 		cap = offsetX - length;
 		offset = offsetX;
 		break;
 	}
-	for (int i = offset; cap < offset ? i > cap : i > cap; cap < offset ? i-- : i++)
-	{
-		Tile *next = getTileByWorldPosition(cap < offset ? sf::Vector2f(offsetX, static_cast<float>(i)) : sf::Vector2f(static_cast<float>(i), offsetY));
-		if (next->getMaterial()->isCollidable())
-		{
-			return next;
-		}
-	}
+
 	throw WorldException("Failed to find tile");
 }
 
@@ -337,16 +341,16 @@ namespace WorldHelper
 	sf::Vector2i chunkPosition(sf::Vector2f pPosition)
 	{
 		sf::Vector2i chunkPos(0, 0); 
-		chunkPos.x = std::floor(pPosition.x / chunk_size);
-		chunkPos.y = std::floor(pPosition.y / chunk_size);
+		chunkPos.x = static_cast<int>(std::floor(pPosition.x / chunk_size));
+		chunkPos.y = static_cast<int>(std::floor(pPosition.y / chunk_size));
 		return chunkPos;
 	}
 
 	sf::Vector2i tilePosition(sf::Vector2f pPosition)
 	{
 		sf::Vector2i tilePosition(0, 0);
-		tilePosition.x = std::fmod(pPosition.x, chunk_size);
-		tilePosition.y = std::fmod(pPosition.y, chunk_size);
+		tilePosition.x = static_cast<int>(std::fmod(pPosition.x, chunk_size));
+		tilePosition.y = static_cast<int>(std::fmod(pPosition.y, chunk_size));
 		return tilePosition;
 	}
 

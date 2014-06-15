@@ -37,6 +37,7 @@ public:
 	void update();
 	void play(bool pLoop = false);
 	void setVolume(int volume);
+	void stop();
 	int getVolume();
 	sf::SoundBuffer &getBuffer();
 	bool isPlaying();

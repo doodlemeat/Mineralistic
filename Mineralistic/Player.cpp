@@ -10,6 +10,9 @@
 #include "Audiosystem.h"
 #include "Tile.h"
 #include "Logger.h"
+#include "Hook.h"
+#include "Math.h"
+#include "SFML/Graphics/CircleShape.hpp"
 
 Player::Player() : GameObject("Player")
 {
@@ -17,8 +20,11 @@ Player::Player() : GameObject("Player")
 	mFootContacts = 0;
 	mRopes = 5;
 	mStopWatch.restart();
+	mHooked = false;
+	mCurrentHook = nullptr;
+	mRope = new sf::Sprite();
+	mJointHack = false;
 }
-
 
 Player::~Player()
 {
@@ -27,36 +33,106 @@ Player::~Player()
 	
 	delete mB2UserData;
 	mB2UserData = nullptr;
+	
+	delete mCurrentTileMark;
+	mCurrentTileMark = nullptr;
+
+	delete mRope;
+	mRope = nullptr;
 }
 
 void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 {
-	b2Vec2 velocity = mBody->GetLinearVelocity();
-	mBody->SetLinearVelocity(b2Vec2(0, velocity.y));
+	if (!mHooked)
+	{
+		b2Vec2 velocity = mBody->GetLinearVelocity();
+		mBody->SetLinearVelocity(b2Vec2(0, velocity.y));
+	}
 
-	if (pActionMap->isActive("Jump") && canJump() && mStopWatch.getElapsedTime().asMilliseconds() > 100)
+	sf::Vector2f p = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()))->getPosition();
+	mCurrentTileMark->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(p));
+
+	if (pActionMap->isActive("Jump") && canJump() && mStopWatch.getElapsedTime().asMilliseconds() > 100 && !mHooked)
 	{
 		mStopWatch.restart();
 		mBody->ApplyLinearImpulse(PhysicsScale::gameToPhys(sf::Vector2f(0, -150)), mBody->GetWorldCenter(), true);
 	}
+	else if (pActionMap->isActive("Jump") && mHooked)
+	{
+		// Climb rope
+		b2DistanceJoint *joint = static_cast<b2DistanceJoint*>(mCurrentHook->getJoint());
+		float length = PhysicsScale::physToGame(joint->GetLength());
+		length -= 2.f;
+		joint->SetLength(PhysicsScale::gameToPhys(length));
+		if (!mObjectManager->getAudioSystem()->getSound("Climb_Rope")->isPlaying())
+		{
+			mObjectManager->getAudioSystem()->playSound("Climb_Rope", true);
+		}
+	}
+	else if (pActionMap->isActive("Climb_Down") && mHooked)
+	{
+		b2DistanceJoint *joint = static_cast<b2DistanceJoint*>(mCurrentHook->getJoint());
+		float length = PhysicsScale::physToGame(joint->GetLength());
+		length += 2.f;
+		joint->SetLength(PhysicsScale::gameToPhys(length));
+		if (!mObjectManager->getAudioSystem()->getSound("Climb_Rope")->isPlaying())
+		{
+			mObjectManager->getAudioSystem()->playSound("Climb_Rope", true);
+		}
+	}
+	else
+	{
+		mObjectManager->getAudioSystem()->getSound("Climb_Rope")->stop();
+	}
+
+	
+
 	if (pActionMap->isActive("Walk_Left"))
 	{
-		mBody->ApplyLinearImpulse(PhysicsScale::gameToPhys(sf::Vector2f(-50, 0)), mBody->GetWorldCenter(), true);
+		sf::Vector2f velocity(-50, 0);
+		if (mHooked)
+		{
+			velocity.x = -5;
+		}
+		mBody->ApplyLinearImpulse(PhysicsScale::gameToPhys(velocity), mBody->GetWorldCenter(), true);
 	}
 	if (pActionMap->isActive("Walk_Right"))
 	{
-		mBody->ApplyLinearImpulse(PhysicsScale::gameToPhys(sf::Vector2f(50, 0)), mBody->GetWorldCenter(), true);
+		sf::Vector2f velocity(50, 0);
+		if (mHooked)
+		{
+			velocity.x = 5;
+		}
+		mBody->ApplyLinearImpulse(PhysicsScale::gameToPhys(velocity), mBody->GetWorldCenter(), true);
+	}
+
+	sf::Vector2f newPosition = PhysicsScale::physToGame(mBody->GetPosition()) - sf::Vector2f(0, 4);
+	mSprite->setPosition(newPosition);
+
+	getAnimator()->update(sf::seconds(dt));
+	getAnimator()->animate(*mSprite);
+
+
+	if (mHooked)
+	{
+		updateHook();
 	}
 
 	if (pActionMap->isActive("Throw_Hook"))
 	{
-		if (mRopes > 0)
+		// If player is hooked, cancel the current hook and check if player can hook somewhere else
+		if (mHooked)
+		{
+			quitHook();
+		}
+		else
 		{
 			mObjectManager->getAudioSystem()->playSound("Throw_Hook", false);
 			try
 			{
 				Tile *targetTile = mWorld->getClosestTileInDirection(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()), World::NORTH, 10);
-				mObjectManager->spawnHook(targetTile->getPosition());
+				Hook *spawnedHook = mObjectManager->spawnHook(targetTile->getPosition());
+				hookTo(spawnedHook);
 				mObjectManager->getAudioSystem()->playSound("Hook_Attached", false);
 			}
 			catch (WorldException &e)
@@ -66,19 +142,17 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 		}
 	}
 
-
-	sf::Vector2f newPosition = PhysicsScale::physToGame(mBody->GetPosition()) - sf::Vector2f(0, 4);
-	mSprite->setPosition(newPosition);
-
-	getAnimator()->update(sf::seconds(dt));
-	getAnimator()->animate(*mSprite);
-
 	mView->setCenter(mSprite->getPosition());
 }
 
 void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
+	//target.draw(*mCurrentTileMark);
 	target.draw(*mSprite);
+	if (mHooked)
+	{
+		target.draw(*mRope);
+	}
 }
 
 sf::View * Player::getView()
@@ -114,4 +188,54 @@ void Player::decreaseFootContacts()
 bool Player::canJump()
 {
 	return mFootContacts > 0;
+}
+
+void Player::setCurrentTileMark(sf::Sprite *pCurrentTileMark)
+{
+	mCurrentTileMark = pCurrentTileMark;
+}
+
+void Player::hookTo(Hook *pHook)
+{
+	mCurrentHook = pHook;
+
+	sf::Vector2f from = mSprite->getPosition() + sf::Vector2f(0, -32);
+	sf::Vector2f to = mCurrentHook->getSprite()->getPosition();
+
+	mRope->setTextureRect(sf::IntRect(0, 0, 8, Math::euclideanDistance(from, to)));
+	mRope->setRotation(Math::RAD2DEG(Math::angleBetween(to, from)) + 90.f);
+	mRope->setOrigin(4, mRope->getGlobalBounds().height / 2.f);
+
+	mCurrentHook->setJoint(mObjectManager->createDistanceJointBetween(mBody, pHook->getBody(), Math::euclideanDistance(to, from)));
+	mHooked = true;
+	getAnimator()->playAnimation("Swing", true);
+}
+
+void Player::updateHook()
+{
+	sf::Vector2f from = mSprite->getPosition() + sf::Vector2f(0, -32);
+	sf::Vector2f to = mCurrentHook->getSprite()->getPosition();
+
+	float centerX = (to.x + from.x) / 2.f;
+	float centerY = (to.y + from.y) / 2.f;
+
+	mRope->setOrigin(4, mRope->getLocalBounds().height / 2.f);
+	mRope->setPosition(centerX, centerY);
+	mRope->setRotation(Math::RAD2DEG(Math::angleBetween(to, from)) + 90.f);
+	mRope->setTextureRect(sf::IntRect(0, 0, 8, Math::euclideanDistance(from, to)));
+}
+
+sf::Sprite *Player::getRope()
+{
+	return mRope;
+}
+
+void Player::quitHook()
+{
+	mObjectManager->getB2World()->DestroyJoint(mCurrentHook->getJoint());
+	mObjectManager->getB2World()->DestroyBody(mCurrentHook->getBody());
+	mCurrentHook->setDead(true);
+	mHooked = false;
+	getAnimator()->playAnimation("Idle", true);
+	mJointHack = false;
 }

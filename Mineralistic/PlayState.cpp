@@ -38,12 +38,14 @@ void PlayState::entering()
 {
 	std::cout << "Entering play state" << std::endl;
 
+	mB2World = new b2World(b2Vec2(0.f, 30.f));
+	mB2World->SetAllowSleeping(true);
+
 	mObjectManager = new ObjectManager();
 	mObjectManager->setAudioSystem(mAssets->audioSystem);
 	mObjectManager->setResourceHolder(mAssets->resourceHolder);
+	mObjectManager->setB2World(mB2World);
 
-	mB2World = new b2World(b2Vec2(0.f, 30.f));
-	mB2World->SetAllowSleeping(true);
 
 	mContactListener = new B2ContactListener();
 	mB2World->SetContactListener(mContactListener);
@@ -58,7 +60,7 @@ void PlayState::entering()
 	mWorld->addTileStop("Stone", 0.f, sf::Vector2i(0, 0));
 
 	mB2DebugDraw = new Box2DWorldDraw(mAssets->windowManager->getWindow());
-	mB2DebugDraw->SetFlags(b2Draw::e_shapeBit);
+	mB2DebugDraw->SetFlags(b2Draw::e_jointBit);
 	mB2World->SetDebugDraw(mB2DebugDraw);
 
 	mDebug.setFont(mAssets->resourceHolder->getFont("consola.ttf"));
@@ -150,7 +152,8 @@ void PlayState::draw()
 
 void PlayState::setupActions()
 {
-	getActionMap()->operator[]("Jump") = thor::Action(sf::Keyboard::Up, thor::Action::Hold);
+	getActionMap()->operator[]("Jump") = thor::Action(sf::Keyboard::Up, thor::Action::Hold); // Jump, climb rope
+	getActionMap()->operator[]("Climb_Down") = thor::Action(sf::Keyboard::Down, thor::Action::Hold);
 	getActionMap()->operator[]("Walk_Left") = thor::Action(sf::Keyboard::Left, thor::Action::Hold);
 	getActionMap()->operator[]("Walk_Right") = thor::Action(sf::Keyboard::Right, thor::Action::Hold);
 	getActionMap()->operator[]("Throw_Hook") = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
@@ -160,10 +163,19 @@ void PlayState::setupActions()
 void PlayState::setupPlayer()
 {
 	Player *playerObject = new Player();
-	playerObject->setWorld(mWorld);
 	mObjectManager->addObject(playerObject);
 
-	playerObject->getSprite()->setTexture(mAssets->resourceHolder->getTexture("test.png"));
+	sf::Sprite *currentTileMarkup = new sf::Sprite();
+	currentTileMarkup->setTexture(mAssets->resourceHolder->getTexture("current_tile.png"));
+	playerObject->setCurrentTileMark(currentTileMarkup);
+
+	sf::Sprite *rope = playerObject->getRope();
+	mAssets->resourceHolder->getTexture("rope.png").setRepeated(true);
+	rope->setTexture(mAssets->resourceHolder->getTexture("rope.png"));
+
+	playerObject->setWorld(mWorld);
+
+	playerObject->getSprite()->setTexture(mAssets->resourceHolder->getTexture("player.png"));
 	playerObject->getSprite()->setOrigin(32, 32);
 
 	thor::FrameAnimation *idleAnimation = new thor::FrameAnimation();
@@ -175,7 +187,17 @@ void PlayState::setupPlayer()
 	idleAnimation->addFrame(1.f, sf::IntRect(320, 0, 64, 64));
 	idleAnimation->addFrame(1.f, sf::IntRect(384, 0, 64, 64));
 	idleAnimation->addFrame(1.f, sf::IntRect(448, 0, 64, 64));
+
+	thor::FrameAnimation *swingAnimation = new thor::FrameAnimation();
+	swingAnimation->addFrame(1.f, sf::IntRect(0, 64, 64, 64));
+	swingAnimation->addFrame(1.f, sf::IntRect(64, 64, 64, 64));
+	swingAnimation->addFrame(1.f, sf::IntRect(128, 64, 64, 64));
+	swingAnimation->addFrame(1.f, sf::IntRect(192, 64, 64, 64));
+	swingAnimation->addFrame(1.f, sf::IntRect(256, 64, 64, 64));
+	swingAnimation->addFrame(1.f, sf::IntRect(320, 64, 64, 64));
+
 	playerObject->addAnimation("Idle", idleAnimation, sf::seconds(0.6f));
+	playerObject->addAnimation("Swing", swingAnimation, sf::seconds(0.6f));
 
 	playerObject->getAnimator()->playAnimation("Idle", true);
 	sf::Vector2f newwindowSize = sf::Vector2f(mAssets->windowManager->getWindow()->getSize());

@@ -6,6 +6,9 @@
 #include "Hook.h"
 #include "ResourceHolder.h"
 #include "World.h"
+#include "Box2D\Box2D.h"
+#include "PhysicsScale.h"
+#include "Math.h"
 
 
 ObjectManager::ObjectManager()
@@ -99,7 +102,8 @@ void ObjectManager::addGroup(ObjectGroup *pGroup)
 
 	pGroup->setManager(this);
 
-	for (auto &object : pGroup->getObjects())
+	std::vector<GameObject*> *objects = pGroup->getObjects();
+	for (auto &object : *objects)
 	{
 		object->setManager(this);
 	}
@@ -138,9 +142,34 @@ std::vector<GameObject*> ObjectManager::getObjects()
 
 void ObjectManager::update(float dt, thor::ActionMap<std::string> *pActionMap)
 {
+	// Check if object are dead and remove them
+	auto groupIter = mObjectGroups.begin();
+	while (groupIter != mObjectGroups.end())
+	{
+		ObjectGroup *group = (*groupIter);
+		std::vector<GameObject*> *objects = group->getObjects();
+		auto objectIter = objects->begin();
+		while (objectIter != objects->end())
+		{
+			GameObject *obj = (*objectIter);
+			if (obj->isDead())
+			{
+				delete obj;
+				obj = nullptr;
+				objectIter = objects->erase(objectIter);
+			}
+			else
+			{
+				++objectIter;
+			}
+		}
+		++groupIter;
+	}
+
 	getObject("Player")->update(dt, pActionMap);
 	
-	for (auto &hook : getGroup("hooks")->getObjects())
+	std::vector<GameObject*> *objects = getGroup("hooks")->getObjects();
+	for (auto &hook : *objects)
 	{
 		hook->update(dt);
 	}
@@ -156,16 +185,58 @@ void ObjectManager::setAudioSystem(AudioSystem *pAudiosystem)
 	mAudioSystem = pAudiosystem;
 }
 
-void ObjectManager::spawnHook(sf::Vector2f pWorldPosition)
+Hook *ObjectManager::spawnHook(sf::Vector2f pWorldPosition)
 {
 	Hook *hook = new Hook();
 	hook->getSprite()->setTexture(mResourceHolder->getTexture("hook.png"));
 	hook->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
 	hook->getSprite()->setOrigin(32, 32);
+	hook->setGroup(getGroup("hooks"));
+
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_staticBody;
+	b2Vec2 pos = PhysicsScale::gameToPhys(hook->getSprite()->getPosition());
+	bodyDef.position.Set(pos.x, pos.y);
+	b2Body *body = mB2World->CreateBody(&bodyDef);
+
+	b2CircleShape shape;
+	shape.m_radius = PhysicsScale::gameToPhys(8);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.density = 1;
+	fixtureDef.shape = &shape;
+	body->CreateFixture(&fixtureDef);
+	hook->setBody(body);
+
 	getGroup("hooks")->addGameObject(hook);
+	return hook;
 }
 
 void ObjectManager::setResourceHolder(ResourceHolder *pResourceHolder)
 {
 	mResourceHolder = pResourceHolder;
+}
+
+b2Joint *ObjectManager::createDistanceJointBetween(b2Body *pBodyA, b2Body *pBodyB, float pLength)
+{
+	b2DistanceJointDef jointDef;
+	jointDef.bodyA = pBodyA;
+	jointDef.bodyB = pBodyB;
+	jointDef.type = e_distanceJoint;
+	jointDef.dampingRatio = 1;
+	jointDef.frequencyHz = 0;
+	jointDef.length = PhysicsScale::gameToPhys(pLength);
+	jointDef.localAnchorA = PhysicsScale::gameToPhys(sf::Vector2f(0, -32));
+	b2Joint *joint = mB2World->CreateJoint(&jointDef);
+	return joint;
+}
+
+void ObjectManager::setB2World(b2World *pWorld)
+{
+	mB2World = pWorld;
+}
+
+b2World *ObjectManager::getB2World()
+{
+	return mB2World;
 }

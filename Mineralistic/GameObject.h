@@ -33,6 +33,9 @@ public:
 	void setName(std::string pName);
 	std::string getName();
 
+	void setDead(bool pValue);
+	bool isDead();
+
 	b2Body *getBody();
 	sf::Sprite *getSprite();
 	thor::Animator<sf::Sprite, std::string> *getAnimator();
@@ -44,6 +47,7 @@ protected:
 	ObjectManager *mObjectManager;
 	ObjectGroup *mGroup;
 	b2Body *mBody;
+	bool mDead;
 
 	sf::Sprite *mSprite;
 	thor::Animator<sf::Sprite, std::string> *mAnimator;

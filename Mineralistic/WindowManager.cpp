@@ -30,7 +30,8 @@ void WindowManager::drawObjectManager(ObjectManager *pObjectManager)
 	// TODO: z-order
 	for (auto &group : pObjectManager->getGroups())
 	{
-		for (auto &object : group->getObjects())
+		std::vector<GameObject*> *objects = group->getObjects();
+		for (auto &object : *objects)
 		{
 			mWindow->draw(*object);
 		}

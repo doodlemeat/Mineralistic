@@ -21,3 +21,13 @@ void Hook::update(float dt)
 {
 
 }
+
+void Hook::setJoint(b2Joint *pJoint)
+{
+	mJoint = pJoint;
+}
+
+b2Joint *Hook::getJoint()
+{
+	return mJoint;
+}

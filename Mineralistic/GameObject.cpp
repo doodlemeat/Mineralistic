@@ -37,6 +37,7 @@ GameObject::~GameObject()
 
 void GameObject::construct()
 {
+	mDead = false;
 	mGroup = nullptr;
 	mNameIsSet = false;
 	mSprite = new sf::Sprite();
@@ -120,4 +121,14 @@ void GameObject::update(float dt)
 void GameObject::update(float dt, thor::ActionMap<std::string> *pActionMap /*= nullptr*/)
 {
 
+}
+
+void GameObject::setDead(bool pValue)
+{
+	mDead = pValue;
+}
+
+bool GameObject::isDead()
+{
+	return mDead;
 }

@@ -12,9 +12,9 @@ namespace Angle
 	{
 		float angle = std::atan2(from.y, from.x) - std::atan2f(to.y, to.x);
 		if (angle > Math::PI)
-			angle -= Math::PI_2;
+			angle -= Math::PI * 2;
 		if (angle < -Math::PI)
-			angle += Math::PI_2;
+			angle += Math::PI * 2;
 		return -angle;
 	}
 }

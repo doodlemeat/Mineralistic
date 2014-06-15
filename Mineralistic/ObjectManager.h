@@ -7,6 +7,10 @@ class ObjectGroup;
 class AudioSystem;
 class GameObject;
 class ResourceHolder;
+class Hook;
+class b2World;
+class b2Body;
+class b2Joint;
 
 class ObjectManager
 {
@@ -20,6 +24,7 @@ public:
 	ObjectGroup *getGroup(std::string pName);
 	GameObject *getObject(std::string pName);
 
+	void setB2World(b2World *pWorld);
 	void setAudioSystem(AudioSystem *pAudiosystem);
 	void setResourceHolder(ResourceHolder *pResourceHolder);
 	AudioSystem *getAudioSystem();
@@ -30,11 +35,15 @@ public:
 	std::vector<ObjectGroup*> getGroups();
 	std::vector<GameObject*> getObjects();
 
-	void spawnHook(sf::Vector2f pWorldPosition);
+	Hook *spawnHook(sf::Vector2f pWorldPosition);
+
+	b2Joint *createDistanceJointBetween(b2Body *pBodyA, b2Body *pBodyB, float pLength);
+	b2World *getB2World();
 private:
 	std::vector<ObjectGroup*> mObjectGroups;
 	std::vector<GameObject*> mGameObjects;
 	AudioSystem *mAudioSystem;
 	ResourceHolder *mResourceHolder;
+	b2World *mB2World;
 };
 

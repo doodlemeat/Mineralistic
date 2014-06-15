@@ -175,6 +175,17 @@ void Sound::setBuffer(sf::SoundBuffer pBuffer)
 	mBuffer = pBuffer;
 }
 
+void Sound::stop()
+{
+	for (std::size_t i = 0; i < mInstances.size(); i++)
+	{
+		if (mInstances[i].getStatus() != sf::Sound::Status::Stopped)
+		{
+			mInstances[i].stop();
+		}
+	}
+}
+
 Music::Music()
 {
 

@@ -151,6 +151,7 @@ void World::addTileStop(std::string pName, float pHeightStop)
 	TileStop *tileStop = new TileStop(material);
 	tileStop->setHeightStop(pHeightStop);
 	mTileStops.push_back(tileStop);
+	std::cout << "Added tilestop at " << pHeightStop << " to material " << pName << std::endl;
 }
 
 TileStop *World::getTileStopAt(float pHeightValue)
@@ -178,7 +179,12 @@ void World::registerMaterial(Material *pMaterial)
 			return;
 		}
 	}
+	std::cout << "Registred material " << pMaterial->getName() << std::endl;
 
+	if (pMaterial->isLumpable())
+	{
+		mLumpables.push_back(pMaterial);
+	}
 	mMaterials.push_back(pMaterial);
 }
 

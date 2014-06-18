@@ -81,10 +81,11 @@ private:
 	sf::Vector2i mChunkTileSize; // in tiles
 	sf::Vector2i mTileSize; // in pixels
 	sf::Vector2i mChunkSize; // in pixels (mChunkTileSize * mTileSize)
-	std::mutex mChunkMutex;
 	std::vector<Chunk*> mChunks;
 	std::vector<TileStop*> mTileStops;
-	std::vector<Material*> mMaterials;
+	std::vector<Material*> mMaterials; // Stores all materials
+	std::vector<Material*> mLumpables; // Stores only lumpable materials
+
 	sf::Texture mTileset;
 	ObjectManager *mObjectManager;
 	b2World *mB2World;

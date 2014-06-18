@@ -54,18 +54,7 @@ void PlayState::entering()
 	mAssets->resourceHolder->getTexture("tileset.png").setSmooth(false);
 
 	mWorld = new World(sf::Vector2i(8, 8), sf::Vector2i(64, 64), mAssets->resourceHolder->getTexture("tileset.png"), mObjectManager, mB2World);
-	mWorld->registerMaterial(new Material("Stone", true, sf::IntRect(0, 0, 64, 64), 1));
-	mWorld->registerMaterial(new Material("Air", false, sf::IntRect(64, 0, 64, 64)));
-	mWorld->registerMaterial(new Material("PackedStone", true, sf::IntRect(128, 0, 64, 64), 2));
-	mWorld->registerMaterial(new Material("Ruby", true, sf::IntRect(0, 64, 64, 64), 1));
-	mWorld->registerMaterial(new Material("Bronze", true, sf::IntRect(64, 64, 64, 64), 1));
-	mWorld->registerMaterial(new Material("Gold", true, sf::IntRect(128, 64, 64, 64), 1));
-	mWorld->registerMaterial(new Material("Diamond", true, sf::IntRect(192, 64, 64, 64), 1));
-
-	mWorld->addTileStop("Air", 0.f);
-	mWorld->addTileStop("Stone", 0.5f);
-	mWorld->addTileStop("PackedStone", 1.f);
-
+	
 	mB2DebugDraw = new Box2DWorldDraw(mAssets->windowManager->getWindow());
 	mB2DebugDraw->SetFlags(b2Draw::e_jointBit | b2Draw::e_shapeBit);
 	mB2World->SetDebugDraw(mB2DebugDraw);
@@ -78,7 +67,8 @@ void PlayState::entering()
 
 	ObjectGroup *hookGroup = new ObjectGroup("hooks");
 	mObjectManager->addGroup(hookGroup);
-
+	
+	registerMaterials();
 	setupPlayer();
 }
 
@@ -288,4 +278,91 @@ void PlayState::setupPlayer()
 
 	playerObject->setBody(body);
 
+}
+
+void PlayState::registerMaterials()
+{
+	MaterialDef stoneDef;
+	stoneDef.name = "Stone";
+	stoneDef.collidable = true;
+	stoneDef.textureRect = sf::IntRect(0, 0, 64, 64);
+	mWorld->registerMaterial(new Material(&stoneDef));
+
+	MaterialDef airDef;
+	airDef.name = "Air";
+	airDef.textureRect = sf::IntRect(64, 0, 64, 64);
+	mWorld->registerMaterial(new Material(&airDef));
+
+	MaterialDef packedStoneDef;
+	packedStoneDef.name = "Packed Stone";
+	packedStoneDef.collidable = true;
+	packedStoneDef.textureRect = sf::IntRect(128, 0, 64, 64);
+	packedStoneDef.resistance = 2;
+	mWorld->registerMaterial(new Material(&packedStoneDef));
+
+	// Lumpables
+	/*
+		- Bronze
+		- Iron
+		- Silver
+		- Gold
+		- Ruby
+		- Diamond
+	*/
+	MaterialDef baseLumpable;
+	baseLumpable.collidable = true;
+	baseLumpable.lumpable = true;
+
+	MaterialDef bronzeDef(&baseLumpable);
+	bronzeDef.name = "Bronze";
+	bronzeDef.textureRect = sf::IntRect(64, 64, 64, 64);
+	bronzeDef.upperLimitY = 50;
+	bronzeDef.minLumpSize = 3;
+	bronzeDef.maxLumpSize = 5;
+
+	MaterialDef ironDef(&baseLumpable);
+	ironDef.name = "Iron";
+	ironDef.textureRect = sf::IntRect(320, 64, 64, 64);
+	ironDef.upperLimitY = 80;
+	ironDef.minLumpSize = 2;
+	ironDef.maxLumpSize = 4;
+
+	MaterialDef silverDef(&baseLumpable);
+	silverDef.name = "Silver";
+	silverDef.textureRect = sf::IntRect(256, 64, 64, 64);
+	silverDef.upperLimitY = 140;
+	silverDef.minLumpSize = 4;
+	silverDef.maxLumpSize = 5;
+
+	MaterialDef goldDef(&baseLumpable);
+	goldDef.name = "Gold";
+	goldDef.textureRect = sf::IntRect(128, 64, 64, 64);
+	goldDef.upperLimitY = 200;
+	goldDef.minLumpSize = 1;
+	goldDef.maxLumpSize = 8;
+
+	MaterialDef rubyDef(&baseLumpable);
+	rubyDef.name = "Ruby";
+	rubyDef.textureRect = sf::IntRect(0, 64, 64, 64);
+	rubyDef.upperLimitY = 240;
+	rubyDef.minLumpSize = 3;
+	rubyDef.maxLumpSize = 4;
+
+	MaterialDef diamondDef(&baseLumpable);
+	rubyDef.name = "Diamond";
+	rubyDef.textureRect = sf::IntRect(192, 64, 64, 64);
+	rubyDef.upperLimitY = 300;
+	rubyDef.minLumpSize = 1;
+	rubyDef.maxLumpSize = 5;
+
+	mWorld->registerMaterial(new Material(&bronzeDef));
+	mWorld->registerMaterial(new Material(&ironDef));
+	mWorld->registerMaterial(new Material(&silverDef));
+	mWorld->registerMaterial(new Material(&goldDef));
+	mWorld->registerMaterial(new Material(&rubyDef));
+	mWorld->registerMaterial(new Material(&diamondDef));
+
+	mWorld->addTileStop("Air", 0.f);
+	mWorld->addTileStop("Stone", 0.5f);
+	mWorld->addTileStop("Packed Stone", 1.f);
 }

@@ -1,27 +1,44 @@
 #include "Material.h"
 
-
-
-
-Material::Material(std::string pName, bool pCollidable, sf::IntRect pTextureRect)
+MaterialDef::MaterialDef()
 {
-	mName = pName;
-	mCollidable = pCollidable;
-	mTextureRect = pTextureRect;
-	mResistance = 1;
+	initDefaults();
 }
 
-Material::Material(std::string pName, bool pCollidable, sf::IntRect pTextureRect, int pResitance)
+MaterialDef::MaterialDef(MaterialDef *pMaterialDef)
 {
-	mName = pName;
-	mCollidable = pCollidable;
-	mTextureRect = pTextureRect;
-	mResistance = pResitance;
+	name = pMaterialDef->name;
+	resistance = pMaterialDef->resistance;
+	textureRect = pMaterialDef->textureRect;
+	upperLimitY = pMaterialDef->upperLimitY;
+	lumpable = pMaterialDef->lumpable;
+	maxLumpSize = pMaterialDef->maxLumpSize;
+	minLumpSize = pMaterialDef->minLumpSize;
+	collidable = pMaterialDef->collidable;
 }
 
-Material::~Material()
+void MaterialDef::initDefaults()
 {
+	name = "";
+	resistance = 1;
+	textureRect = sf::IntRect(0, 0, 0, 0);
+	upperLimitY = 0;
+	lumpable = false;
+	maxLumpSize = 2;
+	minLumpSize = 1;
+	collidable = false;
+}
 
+Material::Material(MaterialDef *pMaterialDef)
+{
+	mName = pMaterialDef->name;
+	mLumpable = pMaterialDef->lumpable;
+	mCollidable = pMaterialDef->collidable;
+	mTextureRect = pMaterialDef->textureRect;
+	mResistance = pMaterialDef->resistance;
+	mUpperLimitY = pMaterialDef->upperLimitY;
+	mMinLumpSize = pMaterialDef->minLumpSize;
+	mMaxLumpSize = pMaterialDef->maxLumpSize;
 }
 
 void Material::setCollidable(bool pValue)
@@ -57,4 +74,44 @@ void Material::setResistance(int pResistance)
 int Material::getResistance()
 {
 	return mResistance;
+}
+
+void Material::setLumpable(bool pValue)
+{
+	mLumpable = pValue;
+}
+
+bool Material::isLumpable()
+{
+	return mLumpable;
+}
+
+void Material::setUpperLimitY(int pUpperLimitY)
+{
+	mUpperLimitY = pUpperLimitY;
+}
+
+void Material::setMinLumpSize(int pMinLumpSize)
+{
+	mMinLumpSize = pMinLumpSize;
+}
+
+void Material::setMaxLumpSize(int pMaxLumpSize)
+{
+	mMaxLumpSize = pMaxLumpSize;
+}
+
+int Material::getUpperLimitY()
+{
+	return mUpperLimitY;
+}
+
+int Material::getMinLumpSize()
+{
+	return mMinLumpSize;
+}
+
+int Material::getMaxLumpSize()
+{
+	return mMaxLumpSize;
 }

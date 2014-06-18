@@ -27,6 +27,7 @@ public:
 	void generateChunk();
 
 	void setupPlayer();
+	void registerMaterials();
 
 private:
 	bool mDebugToggled;

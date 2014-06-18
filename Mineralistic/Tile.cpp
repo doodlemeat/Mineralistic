@@ -4,6 +4,8 @@
 #include "World.h"
 #include "Box2D/Box2D.h"
 #include "SFML/Graphics/Vertex.hpp"
+#include "Logger.h"
+#include <iostream>
 
 Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad)
 {
@@ -41,16 +43,17 @@ void Tile::setBodyNull()
 
 void Tile::setMaterial(Material *pMaterial)
 {
-	Material *oldMaterial = mMaterial;
+	Material *oldMaterial = mChunk->getWorld()->getMaterial(mMaterial->getName());
 	mMaterial = pMaterial;
 	
 	// Set new textureRect
 	sf::FloatRect textureRect = static_cast<sf::FloatRect>(mMaterial->getTextureRect());
+	
 	mQuad[0].texCoords = sf::Vector2f(textureRect.left, textureRect.top) + sf::Vector2f(0.5f, 0.5f);
 	mQuad[1].texCoords = sf::Vector2f(textureRect.left + textureRect.width, textureRect.top) + sf::Vector2f(-0.5f, 0.5f);
 	mQuad[2].texCoords = sf::Vector2f(textureRect.left + textureRect.width, textureRect.top + textureRect.height) + sf::Vector2f(-0.5f, -0.5f);
 	mQuad[3].texCoords = sf::Vector2f(textureRect.left, textureRect.top + textureRect.height) + sf::Vector2f(0.5f, -0.5f);
-
+	
 	if (mMaterial->isCollidable())
 	{
 		if (oldMaterial->isCollidable())
@@ -69,4 +72,18 @@ void Tile::setMaterial(Material *pMaterial)
 			mBody = nullptr;
 		}
 	}
+}
+
+void Tile::breakNaturally()
+{
+	setMaterial(mChunk->getWorld()->getMaterial("Air"));
+}
+
+Tile *Tile::getRelative(sf::Vector2i pRelativePosition)
+{
+	sf::Vector2f newPosition;
+	newPosition.x = mPosition.x + pRelativePosition.x;
+	newPosition.y = mPosition.y + pRelativePosition.y;
+	Tile *newTile = mChunk->getWorld()->getTileByWorldPosition(newPosition);
+	return newTile;
 }

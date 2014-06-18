@@ -23,6 +23,8 @@ GameEngine::GameEngine(std::string pTitle, int pWindowWidth, int pWindowHeight)
 	mAudioSystem->createSound("Throw_Hook", mResourceHolder->getSound("throw_hook.ogg"));
 	mAudioSystem->createSound("Hook_Attached", mResourceHolder->getSound("hook_attached.ogg"));
 	mAudioSystem->createSound("Climb_Rope", mResourceHolder->getSound("rope_climb.ogg"));
+	mAudioSystem->createSound("Pick", mResourceHolder->getSound("pick.ogg"));
+	mAudioSystem->createSound("Break", mResourceHolder->getSound("break.ogg"));
 
 	mWindowManager = new WindowManager(pTitle, sf::Vector2i(pWindowWidth, pWindowHeight));
 

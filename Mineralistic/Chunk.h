@@ -37,6 +37,8 @@ public:
 	Tile *getTile(sf::Vector2i pPosition);
 	World *getWorld();
 	b2World *getB2World();
+	sf::Vertex* getVertices(sf::Vector2f pWorldPosition);
+
 private:
 	World* mWorld;
 	b2World *mB2World;
@@ -45,5 +47,6 @@ private:
 
 	sf::Texture mTexture;
 	sf::VertexArray mVertices;
+	sf::RectangleShape mChunkBorder;
 };
 

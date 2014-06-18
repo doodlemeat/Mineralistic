@@ -8,6 +8,15 @@ Material::Material(std::string pName, bool pCollidable, sf::IntRect pTextureRect
 	mName = pName;
 	mCollidable = pCollidable;
 	mTextureRect = pTextureRect;
+	mResistance = 1;
+}
+
+Material::Material(std::string pName, bool pCollidable, sf::IntRect pTextureRect, int pResitance)
+{
+	mName = pName;
+	mCollidable = pCollidable;
+	mTextureRect = pTextureRect;
+	mResistance = pResitance;
 }
 
 Material::~Material()
@@ -38,4 +47,14 @@ std::string Material::getName()
 sf::IntRect Material::getTextureRect()
 {
 	return mTextureRect;
+}
+
+void Material::setResistance(int pResistance)
+{
+	mResistance = pResistance;
+}
+
+int Material::getResistance()
+{
+	return mResistance;
 }

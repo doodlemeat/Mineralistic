@@ -140,7 +140,7 @@ sf::Vector2i World::getTileSize()
 	return mTileSize;
 }
 
-void World::addTileStop(std::string pName, float pHeightStop, sf::Vector2i pPosition)
+void World::addTileStop(std::string pName, float pHeightStop)
 {
 	Material *material = getMaterial(pName);
 	if (material == nullptr)
@@ -155,12 +155,14 @@ void World::addTileStop(std::string pName, float pHeightStop, sf::Vector2i pPosi
 
 TileStop *World::getTileStopAt(float pHeightValue)
 {
-	for (auto &stop : mTileStops)
+	int lastCap = -1.f;
+	for (std::size_t i = 0; i < mTileStops.size(); i++)
 	{
-		if (pHeightValue <= stop->getHeightStop())
+		if (pHeightValue >= lastCap && pHeightValue <= mTileStops[i]->getHeightStop())
 		{
-			return stop;
+			return mTileStops[i];
 		}
+		lastCap = mTileStops[i]->getHeightStop();
 	}
 	return mTileStops.back();
 }
@@ -307,9 +309,19 @@ Tile *World::getClosestTileInDirection(sf::Vector2f pPosition, Direction directi
 		cap = offsetY + length;
 		offset = offsetY;
 		break;
-	case WEST: // TODO
+	case WEST:
 		cap = offsetX - length;
-		offset = offsetX;
+		offset = static_cast<int>(offsetX);
+
+		if (offsetX < 0) cap--;
+		for (int i = offset - 1; i >= cap; i--)
+		{
+			Tile *next = getTileByWorldPosition(sf::Vector2f(static_cast<float>(i), offsetY));
+			if (next->getMaterial()->isCollidable())
+			{
+				return next;
+			}
+		}
 		break;
 	}
 
@@ -346,11 +358,21 @@ namespace WorldHelper
 		return chunkPos;
 	}
 
-	sf::Vector2i tilePosition(sf::Vector2f pPosition)
+	sf::Vector2i toLocalTilePositionFromWorldPosition(sf::Vector2f pPosition)
 	{
 		sf::Vector2i tilePosition(0, 0);
 		tilePosition.x = static_cast<int>(std::fmod(pPosition.x, chunk_size));
 		tilePosition.y = static_cast<int>(std::fmod(pPosition.y, chunk_size));
+		if (tilePosition.x < 0)
+		{
+			tilePosition.x = std::abs(tilePosition.x);
+			tilePosition.x = chunk_size - tilePosition.x;
+		}
+		if (tilePosition.y < 0)
+		{
+			tilePosition.y = std::abs(tilePosition.y);
+			tilePosition.y = chunk_size - tilePosition.y;
+		}
 		return tilePosition;
 	}
 

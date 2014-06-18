@@ -7,9 +7,19 @@
 class World;
 class B2UserData;
 class Hook;
+class Tile;
 
 class Player : public GameObject
 {
+	enum AnimationType
+	{
+		IDLE,
+		WALK_LEFT,
+		WALK_RIGHT,
+		MINE_LEFT,
+		MINE_RIGHT,
+		SWING
+	};
 public:
 	Player();
 	~Player();
@@ -31,17 +41,34 @@ public:
 	void hookTo(Hook *pHook);
 	void updateHook();
 	void quitHook();
+
+	bool IsMining() const { return mIsMining; }
+	void IsMining(bool val) { mIsMining = val; }
+
+	bool Hooked() const { return mHooked; }
+	void Hooked(bool val) { mHooked = val; }
+
+	bool Standing() const { return mStanding; }
+	void Standing(bool val) { mStanding = val; }
+
+	bool FacingLeft() const { return mFacingLeft; }
+	void FacingLeft(bool val) { mFacingLeft = val; }
 private:
 	bool mHooked;
-	unsigned int mRopes;
+	bool mJointHack;
+	bool mIsMining;
+	bool mFacingLeft;
+	bool mStanding;
+	unsigned int mFootContacts;
+	AnimationType mCurrentAnimation;
 	sf::View* mView;
 	B2UserData *mB2UserData;
-	unsigned int mFootContacts;
 	World *mWorld;
-	thor::StopWatch mStopWatch;
+	thor::StopWatch mJumpTimer;
+	thor::StopWatch mBreakTileTimer;
 	sf::Sprite *mCurrentTileMark;
 	sf::Sprite *mRope;
 	Hook *mCurrentHook;
-	bool mJointHack;
+	Tile *mLastTile;
 };
 

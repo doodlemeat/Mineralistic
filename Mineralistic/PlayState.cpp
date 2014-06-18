@@ -19,6 +19,7 @@
 #include "B2ContactListener.h"
 #include "Chunk.h"
 #include "ObjectGroup.h"
+#include "Config.h"
 
 PlayState::PlayState()
 {
@@ -53,20 +54,26 @@ void PlayState::entering()
 	mAssets->resourceHolder->getTexture("tileset.png").setSmooth(false);
 
 	mWorld = new World(sf::Vector2i(8, 8), sf::Vector2i(64, 64), mAssets->resourceHolder->getTexture("tileset.png"), mObjectManager, mB2World);
+	mWorld->registerMaterial(new Material("Stone", true, sf::IntRect(0, 0, 64, 64), 1));
 	mWorld->registerMaterial(new Material("Air", false, sf::IntRect(64, 0, 64, 64)));
-	mWorld->registerMaterial(new Material("Stone", true, sf::IntRect(0, 0, 64, 64)));
+	mWorld->registerMaterial(new Material("PackedStone", true, sf::IntRect(128, 0, 64, 64), 2));
+	mWorld->registerMaterial(new Material("Ruby", true, sf::IntRect(0, 64, 64, 64), 1));
+	mWorld->registerMaterial(new Material("Bronze", true, sf::IntRect(64, 64, 64, 64), 1));
+	mWorld->registerMaterial(new Material("Gold", true, sf::IntRect(128, 64, 64, 64), 1));
+	mWorld->registerMaterial(new Material("Diamond", true, sf::IntRect(192, 64, 64, 64), 1));
 
-	mWorld->addTileStop("Air", 0.f, sf::Vector2i(64, 0));
-	mWorld->addTileStop("Stone", 0.f, sf::Vector2i(0, 0));
+	mWorld->addTileStop("Air", 0.f);
+	mWorld->addTileStop("Stone", 0.5f);
+	mWorld->addTileStop("PackedStone", 1.f);
 
 	mB2DebugDraw = new Box2DWorldDraw(mAssets->windowManager->getWindow());
-	mB2DebugDraw->SetFlags(b2Draw::e_jointBit);
+	mB2DebugDraw->SetFlags(b2Draw::e_jointBit | b2Draw::e_shapeBit);
 	mB2World->SetDebugDraw(mB2DebugDraw);
 
 	mDebug.setFont(mAssets->resourceHolder->getFont("consola.ttf"));
 	mDebug.setString("");
-	mDebug.setPosition(50, 50);
-	mDebug.setCharacterSize(24);
+	mDebug.setPosition(12, 12);
+	mDebug.setCharacterSize(20);
 	mDebug.setColor(sf::Color::White);
 
 	ObjectGroup *hookGroup = new ObjectGroup("hooks");
@@ -121,8 +128,21 @@ bool PlayState::update(float dt)
 	sf::Vector2i chunkPosition = WorldHelper::chunkPosition(worldPosition);
 
 	std::string output = "";
+	output += "v" + Config::MAJOR + "." + Config::MINOR + "\n";
 	output += "x: " + std::to_string(worldPosition.x) + " c: " + std::to_string(chunkPosition.x) + "\n";
 	output += "y: " + std::to_string(worldPosition.y) + " c: " + std::to_string(chunkPosition.y) + "\n";
+	output += "m: ";
+	(player->IsMining() ? output += "true" : output += "false");
+	output += "\n";
+	output += "h: ";
+	(player->Hooked() ? output += "true" : output += "false");
+	output += "\n";
+	output += "s: ";
+	(player->Standing() ? output += "true" : output += "false");
+	output += "\n";
+	output += "fl: ";
+	(player->FacingLeft() ? output += "true" : output += "false");
+	output += "\n";
 
 	mDebug.setString(output);
 	return true;
@@ -147,7 +167,6 @@ void PlayState::draw()
 
 	mAssets->windowManager->getWindow()->setView(mAssets->windowManager->getWindow()->getDefaultView());
 	mAssets->windowManager->getWindow()->draw(mDebug);
-	
 }
 
 void PlayState::setupActions()
@@ -158,6 +177,7 @@ void PlayState::setupActions()
 	getActionMap()->operator[]("Walk_Right") = thor::Action(sf::Keyboard::Right, thor::Action::Hold);
 	getActionMap()->operator[]("Throw_Hook") = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
 	getActionMap()->operator[]("Toggle_Debug") = thor::Action(sf::Keyboard::F1, thor::Action::PressOnce);
+	getActionMap()->operator[]("Mine") = thor::Action(sf::Keyboard::C, thor::Action::Hold);
 }
 
 void PlayState::setupPlayer()
@@ -196,8 +216,32 @@ void PlayState::setupPlayer()
 	swingAnimation->addFrame(1.f, sf::IntRect(256, 64, 64, 64));
 	swingAnimation->addFrame(1.f, sf::IntRect(320, 64, 64, 64));
 
+	thor::FrameAnimation *mineLeftAnimation = new thor::FrameAnimation();
+	mineLeftAnimation->addFrame(1.f, sf::IntRect(0, 128, 64, 64));
+	mineLeftAnimation->addFrame(1.f, sf::IntRect(64, 128, 64, 64));
+	mineLeftAnimation->addFrame(1.f, sf::IntRect(128, 128, 64, 64));
+
+	thor::FrameAnimation *mineRightAnimation = new thor::FrameAnimation();
+	mineRightAnimation->addFrame(1.f, sf::IntRect(0, 192, 64, 64));
+	mineRightAnimation->addFrame(1.f, sf::IntRect(64, 192, 64, 64));
+	mineRightAnimation->addFrame(1.f, sf::IntRect(128, 192, 64, 64));
+
+	thor::FrameAnimation *walkRightAnimation = new thor::FrameAnimation();
+	walkRightAnimation->addFrame(1.f, sf::IntRect(0, 256, 64, 64));
+	walkRightAnimation->addFrame(1.f, sf::IntRect(64, 256, 64, 64));
+	walkRightAnimation->addFrame(1.f, sf::IntRect(128, 256, 64, 64));
+
+	thor::FrameAnimation *walkLeftAnimation = new thor::FrameAnimation();
+	walkLeftAnimation->addFrame(1.f, sf::IntRect(0, 320, 64, 64));
+	walkLeftAnimation->addFrame(1.f, sf::IntRect(64, 320, 64, 64));
+	walkLeftAnimation->addFrame(1.f, sf::IntRect(128, 320, 64, 64));
+
 	playerObject->addAnimation("Idle", idleAnimation, sf::seconds(0.6f));
 	playerObject->addAnimation("Swing", swingAnimation, sf::seconds(0.6f));
+	playerObject->addAnimation("Mine_Left", mineLeftAnimation, sf::seconds(0.4f));
+	playerObject->addAnimation("Mine_Right", mineRightAnimation, sf::seconds(0.4f));
+	playerObject->addAnimation("Walk_Left", walkLeftAnimation, sf::seconds(0.4f));
+	playerObject->addAnimation("Walk_Right", walkRightAnimation, sf::seconds(0.4f));
 
 	playerObject->getAnimator()->playAnimation("Idle", true);
 	sf::Vector2f newwindowSize = sf::Vector2f(mAssets->windowManager->getWindow()->getSize());

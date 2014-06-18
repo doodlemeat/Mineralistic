@@ -21,7 +21,8 @@ public:
 	b2Body *getBody();
 	void setBodyNull();
 	void setMaterial(Material *pMaterial);
-
+	void breakNaturally();
+	Tile *getRelative(sf::Vector2i pRelativePosition);
 private:
 	sf::Vector2f mPosition;
 	Chunk *mChunk;

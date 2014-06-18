@@ -97,6 +97,21 @@ void AudioSystem::playSound(std::string pName, bool pLoop)
 	it->second->play(pLoop);
 }
 
+void AudioSystem::playSound(std::string pName, int pTimeBetween)
+{
+	auto it = mSounds.find(pName);
+	if (it == mSounds.end())
+	{
+		std::cout << "Failed to play sound. Sound '" << pName << "' was not found." << std::endl;
+		return;
+	}
+	Sound *sound = it->second;
+	sound->setTimed(true);
+	sound->setTimeBetween(pTimeBetween);
+	sound->getTimer()->restart(sf::milliseconds(pTimeBetween));
+	it->second->play();
+}
+
 void AudioSystem::playMusic(std::string pName, bool pLoop)
 {
 	auto it = mMusic.find(pName);
@@ -128,6 +143,15 @@ void Sound::update()
 		{
 			mInstances.erase(mInstances.begin() + i);
 			--i;
+		}
+	}
+
+	if (mTimed)
+	{
+		if (mTimer.isExpired())
+		{
+			mTimer.restart(sf::milliseconds(mTimeBetween));
+			play();
 		}
 	}
 }
@@ -167,6 +191,7 @@ bool Sound::isPlaying()
 			break;
 		}
 	}
+	if (mTimed) returnValue = true;
 	return returnValue;
 }
 
@@ -184,6 +209,44 @@ void Sound::stop()
 			mInstances[i].stop();
 		}
 	}
+	mTimed = false;
+	mTimer.reset(sf::seconds(1));
+}
+
+thor::Timer *Sound::getTimer()
+{
+	return &mTimer;
+}
+
+bool Sound::isTimed()
+{
+	return mTimed;
+}
+
+void Sound::setTimed(bool pValue)
+{
+	mTimed = pValue;
+}
+
+void Sound::setTimeBetween(int pTimeBetween)
+{
+	mTimeBetween = pTimeBetween;
+}
+
+int Sound::getTimeBetween()
+{
+	return mTimeBetween;
+}
+
+Sound::Sound()
+{
+	mTimed = false;
+	mTimeBetween = 1;
+}
+
+Sound::~Sound()
+{
+
 }
 
 Music::Music()

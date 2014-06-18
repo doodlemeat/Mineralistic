@@ -24,7 +24,7 @@ namespace WorldHelper
 	sf::Vector2f toWorldPositionFromSFMLPosition(sf::Vector2f pPosition);
 	sf::Vector2f toWorldPositionFromChunkPosition(sf::Vector2i pPosition);
 	sf::Vector2i chunkPosition(sf::Vector2f pPosition);
-	sf::Vector2i tilePosition(sf::Vector2f pPosition);
+	sf::Vector2i toLocalTilePositionFromWorldPosition(sf::Vector2f pPosition);
 	sf::Vector2f clampTilePosition(sf::Vector2f pPosition);
 }
 
@@ -52,7 +52,7 @@ public:
 	~World();
 
 	void update(float dt);
-	void addTileStop(std::string pName, float pHeightStop, sf::Vector2i pPosition);
+	void addTileStop(std::string pName, float pHeightStop);
 	void registerMaterial(Material *pMaterial);
 	b2Body *createBody(sf::Vector2f pPosition);
 	TileStop *getTileStopAt(float pHeightValue);

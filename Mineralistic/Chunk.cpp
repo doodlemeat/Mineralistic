@@ -14,6 +14,10 @@ Chunk::Chunk(World *pWorld, b2World *pB2World)
 {
 	mWorld = pWorld;
 	mB2World = pB2World;
+	mChunkBorder.setOutlineThickness(4);
+	mChunkBorder.setSize(sf::Vector2f(8 * 64, 8 * 64));
+	mChunkBorder.setOutlineColor(sf::Color::White);
+	mChunkBorder.setFillColor(sf::Color::Transparent);
 }
 
 Chunk::~Chunk()
@@ -41,6 +45,7 @@ bool Chunk::isPosition(sf::Vector2i pPosition)
 void Chunk::setPosition(sf::Vector2i pPosition)
 {
 	mPosition = pPosition;
+	mChunkBorder.setPosition(WorldHelper::toSFMLPositionFromWorldPosition(WorldHelper::toWorldPositionFromChunkPosition(mPosition)));
 }
 
 void Chunk::draw(sf::RenderTarget &target, sf::RenderStates states) const
@@ -83,7 +88,7 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			if (heightValue < -1.f) heightValue = -1.f;
 
 			// Get a pointer to the current tile's quad
-			sf::Vertex *quad = &mVertices[(y + x * pHeightMap->GetWidth()) * 4];
+			sf::Vertex *quad = &mVertices[(x + y * pHeightMap->GetWidth()) * 4];
 			
 			quad[0].position = sf::Vector2f(offsetPositon.x + x * tileSize.x, offsetPositon.y + y * tileSize.y);
 			quad[1].position = sf::Vector2f(offsetPositon.x + (x + 1) * tileSize.x, offsetPositon.y + y * tileSize.y);
@@ -117,7 +122,7 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 				vertices[1] = quad[1].position;
 				vertices[2] = quad[2].position;
 				vertices[3] = quad[3].position;
-				mWorld->createChain(vertices, 4);
+				body = mWorld->createChain(vertices, 4);
 			}
 
 			sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromChunkPosition(mPosition) + sf::Vector2f(x, y);
@@ -140,7 +145,7 @@ sf::Vector2i Chunk::getPosition()
 
 Tile *Chunk::getTileAt(sf::Vector2f pPosition)
 {
-	sf::Vector2i tilePosition = WorldHelper::tilePosition(pPosition);
+	sf::Vector2i tilePosition = WorldHelper::toLocalTilePositionFromWorldPosition(pPosition);
 	return mTiles[tilePosition.x][tilePosition.y];
 }
 
@@ -157,4 +162,10 @@ World *Chunk::getWorld()
 b2World *Chunk::getB2World()
 {
 	return mB2World;
+}
+
+sf::Vertex* Chunk::getVertices(sf::Vector2f pWorldPosition)
+{
+	sf::Vector2i tilePos = WorldHelper::toLocalTilePositionFromWorldPosition(pWorldPosition);
+	return &mVertices[(tilePos.x + tilePos.y * 8) * 4];
 }

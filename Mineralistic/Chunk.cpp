@@ -9,6 +9,7 @@
 #include "TileStop.h"
 #include "Box2D/Box2D.h"
 #include "Material.h"
+#include "Thor/Math/Random.hpp"
 
 Chunk::Chunk(World *pWorld, b2World *pB2World)
 {
@@ -89,7 +90,7 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 
 			// Get a pointer to the current tile's quad
 			sf::Vertex *quad = &mVertices[(x + y * pHeightMap->GetWidth()) * 4];
-			
+
 			quad[0].position = sf::Vector2f(offsetPositon.x + x * tileSize.x, offsetPositon.y + y * tileSize.y);
 			quad[1].position = sf::Vector2f(offsetPositon.x + (x + 1) * tileSize.x, offsetPositon.y + y * tileSize.y);
 			quad[2].position = sf::Vector2f(offsetPositon.x + (x + 1) * tileSize.x, offsetPositon.y + (y + 1) * tileSize.y);
@@ -107,16 +108,15 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			quad[2].texCoords = sf::Vector2f(textureRect.left + textureRect.width, textureRect.top + textureRect.height) + sf::Vector2f(-0.5f, -0.5f);
 			quad[3].texCoords = sf::Vector2f(textureRect.left, textureRect.top + textureRect.height) + sf::Vector2f(0.5f, -0.5f);
 
+			quad[0].color = sf::Color(255, 255, 255, 100);
+			quad[1].color = sf::Color(255, 255, 255, 100);
+			quad[2].color = sf::Color(255, 255, 255, 100);
+			quad[3].color = sf::Color(255, 255, 255, 100);
+
 			// create a physics body
 			b2Body *body = nullptr;
 			if (tilestop->getMaterial()->isCollidable())
 			{
-				sf::Vector2f position = quad[0].position + sf::Vector2f(32, 32);
-				//body = mWorld->createBody(position); // Polygon box
-				//mWorld->createLine(quad[0].position, quad[1].position);
-				//mWorld->createLine(quad[1].position, quad[2].position);
-				//mWorld->createLine(quad[2].position, quad[3].position);
-				//mWorld->createLine(quad[3].position, quad[0].position);
 				sf::Vector2f vertices[4];
 				vertices[0] = quad[0].position;
 				vertices[1] = quad[1].position;
@@ -129,6 +129,30 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 
 			// Instantiate a new Tile object with the noise value, this doesn't do anything yet..
 			mTiles[x][y] = new Tile(this, worldPosition, material, body, quad);
+		}
+	}
+
+	// Get a list of avaible lumpables
+	sf::Vector2f worldPos = WorldHelper::toWorldPositionFromChunkPosition(mPosition);
+	std::vector<Material*> lumpables = mWorld->getLumpables(worldPos.y);
+	if (lumpables.size() > 0)
+	{
+		int maxLumps = thor::random(1, 3);
+
+		for (int i = 0; i < maxLumps; i++)
+		{
+			int x = thor::random(0, 7);
+			int y = thor::random(0, 7);
+			if (!mTiles[x][y]->getMaterial()->isCollidable()) continue;
+			int randomIndex = thor::random(0, static_cast<int>(lumpables.size() - 1));
+			Material* material = lumpables[randomIndex];
+			int lumpSize = thor::random(material->getMinLumpSize(), material->getMaxLumpSize()) - 1;
+			mTiles[x][y]->setMaterial(material);
+			Tile *usedTiles[10];
+			for (int j = 0; j < lumpSize; j++)
+			{
+
+			}
 		}
 	}
 }

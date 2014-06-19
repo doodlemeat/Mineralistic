@@ -23,6 +23,8 @@ namespace Math
 
 	sf::Vector2f direction(sf::Vector2f v1, sf::Vector2f v2);
 
+	float relativeFromInterval(float sourceMin, float sourceMax, float intervalMin, float intervalMax, float n);
+
 	float RAD2DEG(float rad);
 	float DEG2RAD(float deg);
 }

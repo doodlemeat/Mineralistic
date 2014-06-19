@@ -9,7 +9,8 @@
 #include "Box2D\Box2D.h"
 #include "PhysicsScale.h"
 #include "Math.h"
-
+#include "Torch.h"
+#include "Tile.h"
 
 ObjectManager::ObjectManager()
 {
@@ -239,4 +240,30 @@ void ObjectManager::setB2World(b2World *pWorld)
 b2World *ObjectManager::getB2World()
 {
 	return mB2World;
+}
+
+Torch *ObjectManager::spawnTorch(sf::Vector2f pWorldPosition, Tile *pCurrent)
+{
+	Torch *torch = new Torch();
+	torch->getSprite()->setTexture(mResourceHolder->getTexture("torch.png"));
+	torch->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
+	torch->getSprite()->setOrigin(32, 32);
+	getGroup("torches")->addGameObject(torch);
+	pCurrent->setTorch(torch);
+	
+	// Update light for affected blocks
+	int iterations = 0;
+	mWorld->processNeighborLight(pCurrent, 7, &iterations);
+	std::cout << "iterations: " << iterations;
+	return torch;
+}
+
+void ObjectManager::setWorld(World *pWorld)
+{
+	mWorld = pWorld;
+}
+
+World *ObjectManager::getWorld()
+{
+	return mWorld;
 }

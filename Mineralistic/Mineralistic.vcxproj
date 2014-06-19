@@ -99,6 +99,7 @@
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileStop.cpp" />
     <ClCompile Include="B2UserData.cpp" />
+    <ClCompile Include="Torch.cpp" />
     <ClCompile Include="WindowManager.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileStop.h" />
     <ClInclude Include="B2UserData.h" />
+    <ClInclude Include="Torch.h" />
     <ClInclude Include="WindowManager.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

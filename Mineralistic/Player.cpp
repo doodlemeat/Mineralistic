@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include "Hook.h"
 #include "Material.h"
+#include "Torch.h"
 #include "Math.h"
 #include "SFML/Graphics/CircleShape.hpp"
 
@@ -258,6 +259,20 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 			{
 				std::cout << e.what() << std::endl;
 			}
+		}
+	}
+
+	if (pActionMap->isActive("PutTorch"))
+	{
+		Tile *current = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
+		if (current->getTorch() != nullptr)
+		{
+			current->getTorch()->setDead(true);
+			current->setTorch(nullptr);
+		}
+		else
+		{
+			Torch *torch = mObjectManager->spawnTorch(current->getPosition(), current);
 		}
 	}
 

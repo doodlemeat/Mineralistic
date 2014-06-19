@@ -42,19 +42,19 @@ void PlayState::entering()
 	mB2World = new b2World(b2Vec2(0.f, 30.f));
 	mB2World->SetAllowSleeping(true);
 
-	mObjectManager = new ObjectManager();
-	mObjectManager->setAudioSystem(mAssets->audioSystem);
-	mObjectManager->setResourceHolder(mAssets->resourceHolder);
-	mObjectManager->setB2World(mB2World);
-
 
 	mContactListener = new B2ContactListener();
 	mB2World->SetContactListener(mContactListener);
 
 	mAssets->resourceHolder->getTexture("tileset.png").setSmooth(false);
 
+	mObjectManager = new ObjectManager();
+	mObjectManager->setAudioSystem(mAssets->audioSystem);
+	mObjectManager->setResourceHolder(mAssets->resourceHolder);
+	mObjectManager->setB2World(mB2World);
 	mWorld = new World(sf::Vector2i(8, 8), sf::Vector2i(64, 64), mAssets->resourceHolder->getTexture("tileset.png"), mObjectManager, mB2World);
-	
+	mObjectManager->setWorld(mWorld);
+
 	mB2DebugDraw = new Box2DWorldDraw(mAssets->windowManager->getWindow());
 	mB2DebugDraw->SetFlags(b2Draw::e_jointBit | b2Draw::e_shapeBit);
 	mB2World->SetDebugDraw(mB2DebugDraw);
@@ -67,6 +67,8 @@ void PlayState::entering()
 
 	ObjectGroup *hookGroup = new ObjectGroup("hooks");
 	mObjectManager->addGroup(hookGroup);
+	ObjectGroup *torchGroup = new ObjectGroup("torches");
+	mObjectManager->addGroup(torchGroup);
 	
 	registerMaterials();
 	setupPlayer();
@@ -168,6 +170,7 @@ void PlayState::setupActions()
 	getActionMap()->operator[]("Throw_Hook") = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
 	getActionMap()->operator[]("Toggle_Debug") = thor::Action(sf::Keyboard::F1, thor::Action::PressOnce);
 	getActionMap()->operator[]("Mine") = thor::Action(sf::Keyboard::C, thor::Action::Hold);
+	getActionMap()->operator[]("PutTorch") = thor::Action(sf::Keyboard::Z, thor::Action::PressOnce);
 }
 
 void PlayState::setupPlayer()
@@ -316,7 +319,7 @@ void PlayState::registerMaterials()
 	MaterialDef bronzeDef(&baseLumpable);
 	bronzeDef.name = "Bronze";
 	bronzeDef.textureRect = sf::IntRect(64, 64, 64, 64);
-	bronzeDef.upperLimitY = 50;
+	bronzeDef.upperLimitY = 5;
 	bronzeDef.minLumpSize = 3;
 	bronzeDef.maxLumpSize = 5;
 
@@ -349,11 +352,11 @@ void PlayState::registerMaterials()
 	rubyDef.maxLumpSize = 4;
 
 	MaterialDef diamondDef(&baseLumpable);
-	rubyDef.name = "Diamond";
-	rubyDef.textureRect = sf::IntRect(192, 64, 64, 64);
-	rubyDef.upperLimitY = 300;
-	rubyDef.minLumpSize = 1;
-	rubyDef.maxLumpSize = 5;
+	diamondDef.name = "Diamond";
+	diamondDef.textureRect = sf::IntRect(192, 64, 64, 64);
+	diamondDef.upperLimitY = 300;
+	diamondDef.minLumpSize = 1;
+	diamondDef.maxLumpSize = 5;
 
 	mWorld->registerMaterial(new Material(&bronzeDef));
 	mWorld->registerMaterial(new Material(&ironDef));

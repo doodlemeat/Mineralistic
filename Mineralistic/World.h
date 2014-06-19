@@ -54,6 +54,7 @@ public:
 	void update(float dt);
 	void addTileStop(std::string pName, float pHeightStop);
 	void registerMaterial(Material *pMaterial);
+
 	b2Body *createBody(sf::Vector2f pPosition);
 	TileStop *getTileStopAt(float pHeightValue);
 
@@ -63,19 +64,18 @@ public:
 	sf::Vector2i getTileSize(); 
 	Material *getMaterial(std::string pName);
 
-	// Returns tile from world position
-
 	b2Body *createLine(sf::Vector2f from, sf::Vector2f to);
 	b2Body *createChain(sf::Vector2f *pVertices, int pLength);
 
 	Chunk *getChunkByChunkPosition(sf::Vector2i pPosition);
 	Chunk *getChunkByWorldPosition(sf::Vector2f pPosition);
+	Chunk *loadChunk(sf::Vector2i pPosition);
+
 	Tile *getTileByWorldPosition(sf::Vector2f pPosition);
 	Tile *getClosestTileInDirection(sf::Vector2f pPosition, Direction direction, unsigned int length);
+	std::vector<Material*> getLumpables(float pHeightLimit);
 
-private:
-	/* Generates a chunk */
-	Chunk *loadChunk(sf::Vector2i pPosition);
+	void processNeighborLight(Tile *pCurrent, int pLightLevel, int *pIterationCount);
 
 private:
 	sf::Vector2i mChunkTileSize; // in tiles

@@ -6,6 +6,7 @@
 #include "SFML/Graphics/Vertex.hpp"
 #include "Logger.h"
 #include <iostream>
+#include "Math.h"
 
 Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad)
 {
@@ -14,6 +15,7 @@ Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *p
 	mBody = pBody;
 	mPosition = pPosition;
 	mQuad = pQuad;
+	mTorch = nullptr;
 }
 
 
@@ -61,8 +63,12 @@ void Tile::setMaterial(Material *pMaterial)
 			mChunk->getB2World()->DestroyBody(mBody);
 			mBody = nullptr;
 		}
-		sf::Vector2f position = static_cast<sf::Vector2f>(mChunk->getPosition()) + mPosition;
-		mBody = mChunk->getWorld()->createBody(position);
+		sf::Vector2f vertices[4];
+		vertices[0] = mQuad[0].position;
+		vertices[1] = mQuad[1].position;
+		vertices[2] = mQuad[2].position;
+		vertices[3] = mQuad[3].position;
+		mBody = mChunk->getWorld()->createChain(vertices, 4);
 	}
 	else
 	{
@@ -86,4 +92,29 @@ Tile *Tile::getRelative(sf::Vector2i pRelativePosition)
 	newPosition.y = mPosition.y + pRelativePosition.y;
 	Tile *newTile = mChunk->getWorld()->getTileByWorldPosition(newPosition);
 	return newTile;
+}
+
+void Tile::updateLight(float pLightLevel)
+{
+	mLightLevel = pLightLevel;
+	float opacity = Math::relativeFromInterval(100, 255, 0, 7, mLightLevel);
+	mQuad[0].color = sf::Color(255, 255, 255, opacity);
+	mQuad[1].color = sf::Color(255, 255, 255, opacity);
+	mQuad[2].color = sf::Color(255, 255, 255, opacity);
+	mQuad[3].color = sf::Color(255, 255, 255, opacity);
+}
+
+int Tile::getLightLevel()
+{
+	return mLightLevel;
+}
+
+void Tile::setTorch(Torch *pTorch)
+{
+	mTorch = pTorch;
+}
+
+Torch *Tile::getTorch()
+{
+	return mTorch;
 }

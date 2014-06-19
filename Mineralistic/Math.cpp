@@ -42,6 +42,19 @@ namespace Math
 		return sf::Vector2f(delta.x / length, delta.y / length);
 	}
 
+	float relativeFromInterval(float sourceMin, float sourceMax, float intervalMin, float intervalMax, float n)
+	{
+		assert(sourceMin < sourceMax);
+		assert(intervalMin < intervalMax);
+
+		if (n < intervalMin) n = intervalMin;
+		if (n > intervalMax) n = intervalMax;
+
+		float p = (n - intervalMin) / (intervalMax - intervalMin);
+		float sum = p * (sourceMax - sourceMin) + sourceMin;
+		return sum;
+	}
+
 	float RAD2DEG(float rad)
 	{
 		return rad * 180 / PI;
@@ -50,7 +63,6 @@ namespace Math
 	float DEG2RAD(float deg)
 	{
 		return deg * PI / 180;
-
 	}
 }
 

@@ -5,6 +5,7 @@
 class Material;
 class Chunk;
 class b2Body;
+class Torch;
 
 namespace sf
 {
@@ -21,13 +22,19 @@ public:
 	b2Body *getBody();
 	void setBodyNull();
 	void setMaterial(Material *pMaterial);
+	void setTorch(Torch *pTorch);
 	void breakNaturally();
+	void updateLight(float pLightLevel);
 	Tile *getRelative(sf::Vector2i pRelativePosition);
+	int getLightLevel();
+	Torch *getTorch();
 private:
 	sf::Vector2f mPosition;
 	Chunk *mChunk;
 	Material *mMaterial;
 	b2Body *mBody;
 	sf::Vertex *mQuad;
+	int mLightLevel; // 0 - 7
+	Torch *mTorch;
 };
 

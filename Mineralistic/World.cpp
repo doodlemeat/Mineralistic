@@ -156,7 +156,7 @@ void World::addTileStop(std::string pName, float pHeightStop)
 
 TileStop *World::getTileStopAt(float pHeightValue)
 {
-	int lastCap = -1.f;
+	float lastCap = -1.f;
 	for (std::size_t i = 0; i < mTileStops.size(); i++)
 	{
 		if (pHeightValue >= lastCap && pHeightValue <= mTileStops[i]->getHeightStop())
@@ -339,6 +339,53 @@ Tile *World::getTileByWorldPosition(sf::Vector2f pPosition)
 	Chunk* chunk = getChunkByWorldPosition(pPosition);
 	return chunk->getTileAt(WorldHelper::clampTilePosition(pPosition));
 }
+
+std::vector<Material*> World::getLumpables(float pHeightLimit)
+{
+	std::vector<Material*> lumpables;
+	for (std::size_t i = 0; i < mLumpables.size(); i++)
+	{
+		if (pHeightLimit >= mLumpables[i]->getUpperLimitY())
+		{
+			lumpables.push_back(mLumpables[i]);
+		}
+	}
+	return lumpables;
+}
+
+	void World::processNeighborLight(Tile *pCurrent, int pLightLevel, int *pIterationCount)
+	{
+		*pIterationCount += 1; // Just to keep track of how many iterations were made.
+		pCurrent->updateLight(pLightLevel);
+		int newLight = pLightLevel - 1;
+		if (newLight <= 0) return;
+
+		Tile *N = pCurrent->getRelative(sf::Vector2i(0, -1));
+		Tile *E = pCurrent->getRelative(sf::Vector2i(1, 0));
+		Tile *S = pCurrent->getRelative(sf::Vector2i(0, 1));
+		Tile *W = pCurrent->getRelative(sf::Vector2i(-1, 0));
+
+		if (N->getLightLevel() < newLight)
+		{
+			N->updateLight(newLight);
+			processNeighborLight(N, newLight, pIterationCount);
+		}
+		if (E->getLightLevel() < newLight)
+		{
+			E->updateLight(newLight);
+			processNeighborLight(E, newLight, pIterationCount);
+		}
+		if (S->getLightLevel() < newLight)
+		{
+			S->updateLight(newLight);
+			processNeighborLight(S, newLight, pIterationCount);
+		}
+		if (W->getLightLevel() < newLight)
+		{
+			W->updateLight(newLight);
+			processNeighborLight(W, newLight, pIterationCount);
+		}
+	}
 
 namespace WorldHelper
 {

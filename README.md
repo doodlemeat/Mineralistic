@@ -3,12 +3,14 @@
 _**Infinite procedurally-generated 2D platformer**_
 
 <!-- Add screenshots here later -->
-![Alt text](http://i.imgur.com/ylLnXA6.png "Optional title")
+![Alt text](http://i.imgur.com/P8ZFrTk.png "Optional title")
 
-_Mineralistic_ is a 2014 summer project I'm making on **C++** with **SFML**.
+
+
+_Mineralistic_ is a 2014 summer project I'm making in **C++** with **SFML**.
 
 It's a 2D Platformer set in an infinite random generated world
-where the player spawns in a cave like environment.
+where the player spawns above a cave like environment.
 He'll be able to collect minerals found in the dungeon to create
 and **upgrade** equipment.
 The goal of the game is to get deep down into the earth to find
@@ -20,9 +22,10 @@ If the player dies, the game is lost and the highscore is saved.
 | Keys | Action |
 | ---- | ------ |
 | Arrow keys | Move |
-| v | Mine |
-| c | Build |
+| z | Put/Remove torch |
+| c | Mine/Shovel |
 | x | Throw Rope |
+| F1 | Debug screen |
 
 ## Usage
 

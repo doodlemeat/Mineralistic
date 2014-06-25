@@ -26,6 +26,7 @@ If the player dies, the game is lost and the highscore is saved.
 | c | Mine/Shovel |
 | x | Throw Rope |
 | F1 | Debug screen |
+| Esc | Quit |
 
 ## Usage
 

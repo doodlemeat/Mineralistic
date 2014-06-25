@@ -20,6 +20,7 @@
 #include "Chunk.h"
 #include "ObjectGroup.h"
 #include "Config.h"
+#include "Tile.h"
 
 PlayState::PlayState()
 {
@@ -38,6 +39,8 @@ PlayState::~PlayState()
 void PlayState::entering()
 {
 	std::cout << "Entering play state" << std::endl;
+
+	mDebugToggled = false;
 
 	mB2World = new b2World(b2Vec2(0.f, 30.f));
 	mB2World->SetAllowSleeping(true);
@@ -67,6 +70,8 @@ void PlayState::entering()
 
 	ObjectGroup *hookGroup = new ObjectGroup("hooks");
 	mObjectManager->addGroup(hookGroup);
+	ObjectGroup *monsterGroup = new ObjectGroup("monsters");
+	mObjectManager->addGroup(monsterGroup);
 	ObjectGroup *torchGroup = new ObjectGroup("torches");
 	mObjectManager->addGroup(torchGroup);
 	
@@ -104,39 +109,69 @@ void PlayState::releaving()
 
 bool PlayState::update(float dt)
 {
-	if (getActionMap()->isActive("Toggle_Debug"))
-	{
-		mDebugToggled = !mDebugToggled;
-	}
 	mB2World->Step(1.0f / 60.f, 8, 3);
 
 	mWorld->update(dt);
 
 	mObjectManager->update(dt, getActionMap());
 
-	Player* player = static_cast<Player*>(mObjectManager->getObject("Player"));
+	if (getActionMap()->isActive("Toggle_Debug"))
+	{
+		mDebugToggled = !mDebugToggled;
+	}
+	if (mDebugToggled)
+	{
+		Player* player = static_cast<Player*>(mObjectManager->getObject("Player"));
 
-	sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromSFMLPosition(player->getSprite()->getPosition());
-	sf::Vector2i chunkPosition = WorldHelper::chunkPosition(worldPosition);
+		sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromSFMLPosition(player->getSprite()->getPosition());
+		sf::Vector2i chunkPosition = WorldHelper::toChunkPositionFromWorldPosition(worldPosition);
 
-	std::string output = "";
-	output += "v" + Config::MAJOR + "." + Config::MINOR + "\n";
-	output += "x: " + std::to_string(worldPosition.x) + " c: " + std::to_string(chunkPosition.x) + "\n";
-	output += "y: " + std::to_string(worldPosition.y) + " c: " + std::to_string(chunkPosition.y) + "\n";
-	output += "m: ";
-	(player->IsMining() ? output += "true" : output += "false");
-	output += "\n";
-	output += "h: ";
-	(player->Hooked() ? output += "true" : output += "false");
-	output += "\n";
-	output += "s: ";
-	(player->Standing() ? output += "true" : output += "false");
-	output += "\n";
-	output += "fl: ";
-	(player->FacingLeft() ? output += "true" : output += "false");
-	output += "\n";
 
-	mDebug.setString(output);
+		std::string output = "";
+		output += "v" + Config::MAJOR + "." + Config::MINOR + "\n";
+		output += "x: " + std::to_string(worldPosition.x) + " c: " + std::to_string(chunkPosition.x) + "\n";
+		output += "y: " + std::to_string(worldPosition.y) + " c: " + std::to_string(chunkPosition.y) + "\n";
+		output += "m: ";
+		(player->IsMining() ? output += "true" : output += "false");
+		output += "\n";
+		output += "h: ";
+		(player->Hooked() ? output += "true" : output += "false");
+		output += "\n";
+		output += "s: ";
+		(player->Standing() ? output += "true" : output += "false");
+		output += "\n";
+		output += "fl: ";
+		(player->FacingLeft() ? output += "true" : output += "false");
+		output += "\n";
+		output += "c: " + std::to_string(mWorld->getLoadedChunks().size()) + "\n";
+		output += "\n";
+		output += "seed: " + std::to_string(mWorld->getSeed()) + "\n";
+		output += "octaves: " + std::to_string(mWorld->getOctaveCount()) + "\n";
+		output += "freq: " + std::to_string(mWorld->getFrequency()) + "\n";
+		output += "q: ";
+		switch (mWorld->getNoiseQuality())
+		{
+		case 0:
+			output += "fast";
+			break;
+		case 1:
+			output += "std";
+			break;
+		case 2:
+			output += "best";
+			break;
+		}
+		output += "\n";
+		output += "e: " + std::to_string(mObjectManager->getGroup("monsters")->getObjects()->size());
+		output += "t: " + std::to_string(mObjectManager->getGroup("torches")->getObjects()->size());
+
+		mDebug.setString(output);
+	}
+
+	if (getActionMap()->isActive("Quit"))
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -151,26 +186,27 @@ void PlayState::draw()
 	mAssets->windowManager->drawWorld(mWorld);
 	mAssets->windowManager->drawObjectManager(mObjectManager);
 
+	mAssets->windowManager->getWindow()->setView(mAssets->windowManager->getWindow()->getDefaultView());
+
 	if (mDebugToggled)
 	{
-		mB2World->DrawDebugData();
+		mAssets->windowManager->getWindow()->draw(mDebug);
 	}
-	/* hud ... */
-
-	mAssets->windowManager->getWindow()->setView(mAssets->windowManager->getWindow()->getDefaultView());
-	mAssets->windowManager->getWindow()->draw(mDebug);
 }
 
 void PlayState::setupActions()
 {
 	getActionMap()->operator[]("Jump") = thor::Action(sf::Keyboard::Up, thor::Action::Hold); // Jump, climb rope
-	getActionMap()->operator[]("Climb_Down") = thor::Action(sf::Keyboard::Down, thor::Action::Hold);
+	getActionMap()->operator[]("Climb_Down") = thor::Action(sf::Keyboard::Down, thor::Action::Hold); // Climb rope, mine
 	getActionMap()->operator[]("Walk_Left") = thor::Action(sf::Keyboard::Left, thor::Action::Hold);
 	getActionMap()->operator[]("Walk_Right") = thor::Action(sf::Keyboard::Right, thor::Action::Hold);
 	getActionMap()->operator[]("Throw_Hook") = thor::Action(sf::Keyboard::X, thor::Action::PressOnce);
 	getActionMap()->operator[]("Toggle_Debug") = thor::Action(sf::Keyboard::F1, thor::Action::PressOnce);
 	getActionMap()->operator[]("Mine") = thor::Action(sf::Keyboard::C, thor::Action::Hold);
-	getActionMap()->operator[]("PutTorch") = thor::Action(sf::Keyboard::Z, thor::Action::PressOnce);
+	getActionMap()->operator[]("Torch") = thor::Action(sf::Keyboard::Z, thor::Action::PressOnce);
+	getActionMap()->operator[]("Zoom_In") = thor::Action(sf::Keyboard::Num1, thor::Action::PressOnce);
+	getActionMap()->operator[]("Zoom_Out") = thor::Action(sf::Keyboard::Num2, thor::Action::PressOnce);
+	getActionMap()->operator[]("Quit") = thor::Action(sf::Keyboard::Escape, thor::Action::PressOnce);
 }
 
 void PlayState::setupPlayer()
@@ -229,12 +265,40 @@ void PlayState::setupPlayer()
 	walkLeftAnimation->addFrame(1.f, sf::IntRect(64, 320, 64, 64));
 	walkLeftAnimation->addFrame(1.f, sf::IntRect(128, 320, 64, 64));
 
+	thor::FrameAnimation *mineDownAnimation = new thor::FrameAnimation();
+	mineDownAnimation->addFrame(1.f, sf::IntRect(0, 384, 64, 64));
+	mineDownAnimation->addFrame(1.f, sf::IntRect(64, 384, 64, 64));
+	mineDownAnimation->addFrame(1.f, sf::IntRect(128, 384, 64, 64));
+	mineDownAnimation->addFrame(1.f, sf::IntRect(192, 384, 64, 64));
+	mineDownAnimation->addFrame(1.f, sf::IntRect(256, 384, 64, 64));
+	mineDownAnimation->addFrame(1.f, sf::IntRect(320, 384, 64, 64));
+
+	thor::FrameAnimation *shovelRightAnimation = new thor::FrameAnimation();
+	shovelRightAnimation->addFrame(1.f, sf::IntRect(0, 448, 64, 64));
+	shovelRightAnimation->addFrame(1.f, sf::IntRect(64, 448, 64, 64));
+	shovelRightAnimation->addFrame(1.f, sf::IntRect(128, 448, 64, 64));
+	shovelRightAnimation->addFrame(1.f, sf::IntRect(192, 448, 64, 64));
+
+	thor::FrameAnimation *shovelLeftAnimation = new thor::FrameAnimation();
+	shovelLeftAnimation->addFrame(1.f, sf::IntRect(0, 512, 64, 64));
+	shovelLeftAnimation->addFrame(1.f, sf::IntRect(64, 512, 64, 64));
+	shovelLeftAnimation->addFrame(1.f, sf::IntRect(128, 512, 64, 64));
+	shovelLeftAnimation->addFrame(1.f, sf::IntRect(192, 512, 64, 64));
+
+	thor::FrameAnimation *shovelDownAnimation = new thor::FrameAnimation();
+	shovelDownAnimation->addFrame(1.f, sf::IntRect(0, 576, 64, 64));
+	shovelDownAnimation->addFrame(1.f, sf::IntRect(64, 576, 64, 64));
+
 	playerObject->addAnimation("Idle", idleAnimation, sf::seconds(0.6f));
 	playerObject->addAnimation("Swing", swingAnimation, sf::seconds(0.6f));
 	playerObject->addAnimation("Mine_Left", mineLeftAnimation, sf::seconds(0.4f));
 	playerObject->addAnimation("Mine_Right", mineRightAnimation, sf::seconds(0.4f));
+	playerObject->addAnimation("Mine_Down", mineDownAnimation, sf::seconds(0.7f));
 	playerObject->addAnimation("Walk_Left", walkLeftAnimation, sf::seconds(0.4f));
 	playerObject->addAnimation("Walk_Right", walkRightAnimation, sf::seconds(0.4f));
+	playerObject->addAnimation("Shovel_Left", shovelLeftAnimation, sf::seconds(0.4f));
+	playerObject->addAnimation("Shovel_Right", shovelRightAnimation, sf::seconds(0.4f));
+	playerObject->addAnimation("Shovel_Down", shovelDownAnimation, sf::seconds(0.3f));
 
 	playerObject->getAnimator()->playAnimation("Idle", true);
 	sf::Vector2f newwindowSize = sf::Vector2f(mAssets->windowManager->getWindow()->getSize());
@@ -280,14 +344,43 @@ void PlayState::setupPlayer()
 	body->CreateFixture(&fixtureDef);
 
 	playerObject->setBody(body);
+	playerObject->teleport(0, -6);
+
+	Tile* tile = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(playerObject->getSprite()->getPosition()));
+	mObjectManager->spawnTorch(tile->getRelative(2, 0)->getPosition());
+	mObjectManager->spawnTorch(tile->getRelative(0 , -2)->getPosition());
+	mObjectManager->spawnTorch(tile->getRelative(-2, 0)->getPosition());
 
 }
 
 void PlayState::registerMaterials()
 {
-	MaterialDef stoneDef;
+	MaterialDef stepStoneDef;
+	stepStoneDef.stepSounds.push_back("Step_1");
+	stepStoneDef.stepSounds.push_back("Step_2");
+	stepStoneDef.stepSounds.push_back("Step_3");
+	stepStoneDef.stepSounds.push_back("Step_4");
+	stepStoneDef.stepSounds.push_back("Step_5");
+	stepStoneDef.stepSounds.push_back("Step_6");
+	stepStoneDef.stepSounds.push_back("Step_7");
+	stepStoneDef.stepSounds.push_back("Step_8");
+	stepStoneDef.stepSounds.push_back("Step_9");
+	stepStoneDef.breakingSound = "Pick";
+	stepStoneDef.breakSound = "Break_Stone";
+
+	MaterialDef stepGrassDef;
+	stepGrassDef.stepSounds.push_back("Step_Grass_1");
+	stepGrassDef.stepSounds.push_back("Step_Grass_2");
+	stepGrassDef.stepSounds.push_back("Step_Grass_3");
+	stepGrassDef.stepSounds.push_back("Step_Grass_4");
+	stepGrassDef.breakingSound = "Shovel";
+	stepGrassDef.breakSound = "Break_Dirt";
+
+	MaterialDef stoneDef(stepStoneDef);
 	stoneDef.name = "Stone";
 	stoneDef.collidable = true;
+	stoneDef.resistance = 1;
+	stoneDef.breakBlockType = PICKAXE;
 	stoneDef.textureRect = sf::IntRect(0, 0, 64, 64);
 	mWorld->registerMaterial(new Material(&stoneDef));
 
@@ -296,12 +389,37 @@ void PlayState::registerMaterials()
 	airDef.textureRect = sf::IntRect(64, 0, 64, 64);
 	mWorld->registerMaterial(new Material(&airDef));
 
-	MaterialDef packedStoneDef;
+	MaterialDef packedStoneDef(stepStoneDef);
+	packedStoneDef.breakBlockType = PICKAXE;
 	packedStoneDef.name = "Packed Stone";
 	packedStoneDef.collidable = true;
 	packedStoneDef.textureRect = sf::IntRect(128, 0, 64, 64);
 	packedStoneDef.resistance = 2;
 	mWorld->registerMaterial(new Material(&packedStoneDef));
+
+	MaterialDef skyDef;
+	skyDef.name = "Sky";
+	skyDef.textureRect = sf::IntRect(192, 0, 64, 64);
+	mWorld->registerMaterial(new Material(&skyDef));
+
+	MaterialDef grassDef(stepGrassDef);
+	grassDef.name = "Grass";
+	grassDef.breakBlockType = SHOVEL;
+	grassDef.collidable = true;
+	grassDef.resistance = 0.4;
+	grassDef.textureRect = sf::IntRect(256, 0, 64, 64);
+	mWorld->registerMaterial(new Material(&grassDef));
+
+	MaterialDef dirtDef(stepGrassDef);
+	dirtDef.name = "Dirt";
+	dirtDef.breakBlockType = SHOVEL;
+	dirtDef.collidable = true;
+	dirtDef.resistance = 0.3;
+	dirtDef.lumpable = true;
+	dirtDef.minLumpSize = 4;
+	dirtDef.maxLumpSize = 10;
+	dirtDef.textureRect = sf::IntRect(320, 0, 64, 64);
+	mWorld->registerMaterial(new Material(&dirtDef));
 
 	// Lumpables
 	/*
@@ -312,9 +430,10 @@ void PlayState::registerMaterials()
 		- Ruby
 		- Diamond
 	*/
-	MaterialDef baseLumpable;
+	MaterialDef baseLumpable(stepStoneDef);
 	baseLumpable.collidable = true;
 	baseLumpable.lumpable = true;
+	baseLumpable.breakBlockType = PICKAXE;
 
 	MaterialDef bronzeDef(&baseLumpable);
 	bronzeDef.name = "Bronze";

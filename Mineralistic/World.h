@@ -23,9 +23,14 @@ namespace WorldHelper
 	sf::Vector2f toSFMLPositionFromWorldPosition(sf::Vector2f pWorldPosition, bool pCenterOnTile = false);
 	sf::Vector2f toWorldPositionFromSFMLPosition(sf::Vector2f pPosition);
 	sf::Vector2f toWorldPositionFromChunkPosition(sf::Vector2i pPosition);
-	sf::Vector2i chunkPosition(sf::Vector2f pPosition);
+	sf::Vector2i toChunkPositionFromWorldPosition(sf::Vector2f pPosition);
 	sf::Vector2i toLocalTilePositionFromWorldPosition(sf::Vector2f pPosition);
 	sf::Vector2f clampTilePosition(sf::Vector2f pPosition);
+}
+
+namespace thor
+{
+	class Timer;
 }
 
 struct WorldException : public std::exception
@@ -75,13 +80,18 @@ public:
 	Tile *getClosestTileInDirection(sf::Vector2f pPosition, Direction direction, unsigned int length);
 	std::vector<Material*> getLumpables(float pHeightLimit);
 
-	void processNeighborLight(Tile *pCurrent, int pLightLevel, int *pIterationCount);
+	const int & getSeed();
+	const int & getOctaveCount();
+	const int & getNoiseQuality();
+	const double & getFrequency();
+	void spawnMonsters();
 
 private:
 	sf::Vector2i mChunkTileSize; // in tiles
 	sf::Vector2i mTileSize; // in pixels
 	sf::Vector2i mChunkSize; // in pixels (mChunkTileSize * mTileSize)
 	std::vector<Chunk*> mChunks;
+
 	std::vector<TileStop*> mTileStops;
 	std::vector<Material*> mMaterials; // Stores all materials
 	std::vector<Material*> mLumpables; // Stores only lumpable materials
@@ -90,6 +100,13 @@ private:
 	ObjectManager *mObjectManager;
 	b2World *mB2World;
 
+	int seed;
+	int octaveCount;
+	int noise_quality;
+	double frequency;
+
 	noise::module::Perlin mNoiseModule;
+
+	thor::Timer* mMonsterSpawnerTimer;
 };
 

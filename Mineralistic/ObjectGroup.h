@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "Thor/Input/ActionMap.hpp"
 
 class GameObject;
 class ObjectManager;
@@ -20,7 +21,8 @@ public:
 	GameObject *addGameObject(GameObject *pObject, std::string pName = "");
 	std::vector<GameObject*> *getObjects();
 	void setManager(ObjectManager *pObjectManager);
-
+	void update(float dt);
+	void update(float dt, thor::ActionMap<std::string> *pActionMap);
 private:
 	bool mNameIsSet;
 	std::string mName;

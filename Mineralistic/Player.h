@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "SFML\Graphics\View.hpp"
 #include "Thor\Time\StopWatch.hpp"
+#include "Material.h"
 
 class World;
 class B2UserData;
@@ -18,6 +19,10 @@ class Player : public GameObject
 		WALK_RIGHT,
 		MINE_LEFT,
 		MINE_RIGHT,
+		MINE_DOWN,
+		SHOVEL_LEFT,
+		SHOVEL_RIGHT,
+		SHOVEL_DOWN,
 		SWING
 	};
 public:
@@ -59,13 +64,20 @@ private:
 	bool mIsMining;
 	bool mFacingLeft;
 	bool mStanding;
+	int lastX;
 	unsigned int mFootContacts;
 	AnimationType mCurrentAnimation;
+	BreakBlockType mMineType;
+
 	sf::View* mView;
 	B2UserData *mB2UserData;
 	World *mWorld;
+
 	thor::StopWatch mJumpTimer;
 	thor::StopWatch mBreakTileTimer;
+
+	thor::StopWatch mFootStepAudio;
+
 	sf::Sprite *mCurrentTileMark;
 	sf::Sprite *mRope;
 	Hook *mCurrentHook;

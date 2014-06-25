@@ -20,11 +20,36 @@ GameEngine::GameEngine(std::string pTitle, int pWindowWidth, int pWindowHeight)
 	mResourceHolder = new ResourceHolder();
 	mAudioSystem = new AudioSystem();
 	mAudioSystem->createMusic("Ambient_1", "../assets/music/ambient_1.wav");
+
 	mAudioSystem->createSound("Throw_Hook", mResourceHolder->getSound("throw_hook.ogg"));
 	mAudioSystem->createSound("Hook_Attached", mResourceHolder->getSound("hook_attached.ogg"));
 	mAudioSystem->createSound("Climb_Rope", mResourceHolder->getSound("rope_climb.ogg"));
+
 	mAudioSystem->createSound("Pick", mResourceHolder->getSound("pick.ogg"));
-	mAudioSystem->createSound("Break", mResourceHolder->getSound("break.ogg"));
+	mAudioSystem->createSound("Shovel", mResourceHolder->getSound("shovel.ogg"));
+	mAudioSystem->createSound("Break_Stone", mResourceHolder->getSound("break_stone.ogg"));
+	mAudioSystem->createSound("Break_Dirt", mResourceHolder->getSound("break_dirt.ogg"));
+	mAudioSystem->createSound("Mineral_Gathered", mResourceHolder->getSound("mineral_gathered.ogg"));
+
+	mAudioSystem->createSound("Monster_Groan_1", mResourceHolder->getSound("monster_groan_1.ogg"));
+	mAudioSystem->createSound("Monster_Groan_2", mResourceHolder->getSound("monster_groan_2.ogg"));
+
+	mAudioSystem->createSound("Step_1", mResourceHolder->getSound("step_1.ogg"));
+	mAudioSystem->createSound("Step_2", mResourceHolder->getSound("step_2.ogg"));
+	mAudioSystem->createSound("Step_3", mResourceHolder->getSound("step_3.ogg"));
+	mAudioSystem->createSound("Step_4", mResourceHolder->getSound("step_4.ogg"));
+	mAudioSystem->createSound("Step_5", mResourceHolder->getSound("step_5.ogg"));
+	mAudioSystem->createSound("Step_6", mResourceHolder->getSound("step_6.ogg"));
+	mAudioSystem->createSound("Step_7", mResourceHolder->getSound("step_7.ogg"));
+	mAudioSystem->createSound("Step_8", mResourceHolder->getSound("step_8.ogg"));
+	mAudioSystem->createSound("Step_9", mResourceHolder->getSound("step_9.ogg"));
+	mAudioSystem->createSound("Step_Grass_1", mResourceHolder->getSound("step_grass_1.ogg"));
+	mAudioSystem->createSound("Step_Grass_2", mResourceHolder->getSound("step_grass_2.ogg"));
+	mAudioSystem->createSound("Step_Grass_3", mResourceHolder->getSound("step_grass_3.ogg"));
+	mAudioSystem->createSound("Step_Grass_4", mResourceHolder->getSound("step_grass_4.ogg"));
+
+	mAudioSystem->createSound("Place_Torch", mResourceHolder->getSound("place_torch.ogg"));
+	mAudioSystem->createSound("Remove_Torch", mResourceHolder->getSound("remove_torch.ogg"));
 
 	mWindowManager = new WindowManager(pTitle, sf::Vector2i(pWindowWidth, pWindowHeight));
 

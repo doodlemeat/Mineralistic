@@ -10,7 +10,6 @@ class ResourceHolder;
 class Hook;
 class b2World;
 class b2Body;
-class Torch;
 class Tile;
 class b2Joint;
 class World;
@@ -39,12 +38,13 @@ public:
 	std::vector<GameObject*> getObjects();
 
 	Hook *spawnHook(sf::Vector2f pWorldPosition);
-	Torch *spawnTorch(sf::Vector2f pWorldPosition, Tile *pCurrent);
 
 	b2Joint *createDistanceJointBetween(b2Body *pBodyA, b2Body *pBodyB, float pLength);
 	b2World *getB2World();
 	World *getWorld();
 	void setWorld(World *pWorld);
+	void spawnMonster(sf::Vector2f pWorldPosition);
+	void spawnTorch(sf::Vector2f pWorldPosition);
 private:
 	std::vector<ObjectGroup*> mObjectGroups;
 	std::vector<GameObject*> mGameObjects;

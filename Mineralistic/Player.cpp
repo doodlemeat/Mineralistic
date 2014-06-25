@@ -6,15 +6,17 @@
 #include "PhysicsScale.h"
 #include "World.h"
 #include "ObjectManager.h"
+#include "ObjectGroup.h"
 #include <iostream>
 #include "Audiosystem.h"
 #include "Tile.h"
 #include "Logger.h"
 #include "Hook.h"
 #include "Material.h"
-#include "Torch.h"
 #include "Math.h"
 #include "SFML/Graphics/CircleShape.hpp"
+#include "Thor/Math/Random.hpp"
+#include "Torch.h"
 
 Player::Player() : GameObject("Player")
 {
@@ -30,6 +32,9 @@ Player::Player() : GameObject("Player")
 	mLastTile = nullptr;
 	mFacingLeft = true;
 	mStanding = true;
+	lastX = 0;
+	mMineType = PICKAXE;
+	mFootStepAudio.start();
 }
 
 Player::~Player()
@@ -111,13 +116,36 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 
 	if (mIsMining)
 	{
-		if (mFacingLeft)
+		switch (mMineType)
 		{
-			mCurrentAnimation = MINE_LEFT;
-		}
-		else
-		{
-			mCurrentAnimation = MINE_RIGHT;
+		case PICKAXE:
+			if (pActionMap->isActive("Climb_Down"))
+			{
+				mCurrentAnimation = MINE_DOWN;
+			}
+			else if (mFacingLeft)
+			{
+				mCurrentAnimation = MINE_LEFT;
+			}
+			else
+			{
+				mCurrentAnimation = MINE_RIGHT;
+			}
+			break;
+		case SHOVEL:
+			if (pActionMap->isActive("Climb_Down"))
+			{
+				mCurrentAnimation = SHOVEL_DOWN;
+			}
+			else if (mFacingLeft)
+			{
+				mCurrentAnimation = SHOVEL_LEFT;
+			}
+			else
+			{
+				mCurrentAnimation = SHOVEL_RIGHT;
+			}
+			break;
 		}
 	}
 
@@ -137,46 +165,47 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 	if (pActionMap->isActive("Mine") && !mHooked)
 	{
 		mIsMining = true;
-		Tile *tileRelative = nullptr;
 		bool tileFound = false;
+		sf::Vector2i relativePosition;
 
-		if (mFacingLeft)
+		if (pActionMap->isActive("Climb_Down"))
 		{
-			try
-			{
-				Tile *tile = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
-				tileRelative = tile->getRelative(sf::Vector2i(-1, 0));
-				tileFound = true;
-			}
-			catch (WorldException& e)
-			{
-			}
+			relativePosition = sf::Vector2i(0, 1);
+		}
+		else if (mFacingLeft)
+		{
+			relativePosition = sf::Vector2i(-1, 0);
 		}
 		else
 		{
-			try
-			{
-				Tile *tile = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
-				tileRelative = tile->getRelative(sf::Vector2i(1, 0));
-				tileFound = true;
-			}
-			catch (WorldException& e)
-			{
-			}
+			relativePosition = sf::Vector2i(1, 0);
+		}
+
+		Tile *tileRelative;
+		try
+		{
+			Tile *tile = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
+			tileRelative = tile->getRelative(relativePosition);
+			tileFound = true;
+		}
+		catch (WorldException& e)
+		{
 		}
 
 		if (tileFound)
 		{
-			int timeToBreak = 0;
+			Material *material = nullptr;
+			float timeToBreak = 0;
 			if (tileRelative->getMaterial()->isCollidable())
 			{
-				if (!mObjectManager->getAudioSystem()->getSound("Pick")->isPlaying())
+				material = tileRelative->getMaterial();
+				mMineType = material->getBlockBreakType();
+				if (!mObjectManager->getAudioSystem()->getSound(material->getBreakingSound())->isPlaying())
 				{
-					std::cout << "IsNotPlaying";
-					mObjectManager->getAudioSystem()->playSound("Pick", 300);
+					mObjectManager->getAudioSystem()->playSound(material->getBreakingSound(), 350);
 				}
 
-				timeToBreak = tileRelative->getMaterial()->getResistance();
+				timeToBreak = material->getResistance();
 				if (mLastTile != tileRelative)
 				{
 					mBreakTileTimer.restart();
@@ -185,7 +214,10 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 			else
 			{
 				mBreakTileTimer.stop();
+
+				// Superior non-dynamic
 				mObjectManager->getAudioSystem()->getSound("Pick")->stop();
+				mObjectManager->getAudioSystem()->getSound("Shovel")->stop();
 			}
 
 			mLastTile = tileRelative;
@@ -193,7 +225,11 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 			if (mBreakTileTimer.isRunning() && mBreakTileTimer.getElapsedTime().asSeconds() >= timeToBreak)
 			{
 				mBreakTileTimer.stop();
-				mObjectManager->getAudioSystem()->playSound("Break", false);
+				mObjectManager->getAudioSystem()->playSound(material->getBreakSound(), false);
+				if (material->isLumpable())
+				{
+					//mObjectManager->getAudioSystem()->playSound("Mineral_Gathered", false);
+				}
 				tileRelative->breakNaturally();
 				mLastTile = nullptr;
 			}
@@ -205,6 +241,7 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 		mLastTile = nullptr;
 		mIsMining = false;
 		mObjectManager->getAudioSystem()->getSound("Pick")->stop();
+		mObjectManager->getAudioSystem()->getSound("Shovel")->stop();
 	}
 
 	// Move left
@@ -230,6 +267,7 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 	}
 
 	sf::Vector2f newPosition = PhysicsScale::physToGame(mBody->GetPosition()) - sf::Vector2f(0, 4);
+	lastX = mSprite->getPosition().x;
 	mSprite->setPosition(newPosition);
 
 
@@ -262,20 +300,6 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 		}
 	}
 
-	if (pActionMap->isActive("PutTorch"))
-	{
-		Tile *current = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
-		if (current->getTorch() != nullptr)
-		{
-			current->getTorch()->setDead(true);
-			current->setTorch(nullptr);
-		}
-		else
-		{
-			Torch *torch = mObjectManager->spawnTorch(current->getPosition(), current);
-		}
-	}
-
 	switch (mCurrentAnimation)
 	{
 	case IDLE:
@@ -294,6 +318,30 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 		if (!getAnimator()->isPlayingAnimation() || (getAnimator()->getPlayingAnimation() != "Mine_Right"))
 		{
 			getAnimator()->playAnimation("Mine_Right", true);
+		}
+		break;
+	case MINE_DOWN:
+		if (!getAnimator()->isPlayingAnimation() || (getAnimator()->getPlayingAnimation() != "Mine_Down"))
+		{
+			getAnimator()->playAnimation("Mine_Down", true);
+		}
+		break;
+	case SHOVEL_LEFT:
+		if (!getAnimator()->isPlayingAnimation() || (getAnimator()->getPlayingAnimation() != "Shovel_Left"))
+		{
+			getAnimator()->playAnimation("Shovel_Left", true);
+		}
+		break;
+	case SHOVEL_RIGHT:
+		if (!getAnimator()->isPlayingAnimation() || (getAnimator()->getPlayingAnimation() != "Shovel_Right"))
+		{
+			getAnimator()->playAnimation("Shovel_Right", true);
+		}
+		break;
+	case SHOVEL_DOWN:
+		if (!getAnimator()->isPlayingAnimation() || (getAnimator()->getPlayingAnimation() != "Shovel_Down"))
+		{
+			getAnimator()->playAnimation("Shovel_Down", true);
 		}
 		break;
 	case WALK_LEFT:
@@ -332,6 +380,54 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 
 	getAnimator()->update(sf::seconds(dt));
 	getAnimator()->animate(*mSprite);
+
+	if (pActionMap->isActive("Zoom_Out"))
+	{
+		mView->zoom(0.5f);
+	}
+	if (pActionMap->isActive("Zoom_In"))
+	{
+		mView->zoom(1.5f);
+	}
+
+	if (!mStanding && mFootStepAudio.getElapsedTime().asMilliseconds() >= 200 && !mHooked && mFootContacts > 0 && lastX != (int)mSprite->getPosition().x)
+	{
+		Tile *current = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()))->getRelative(0, 1);
+		
+		// This can in some cases return a non-solid block like "Air"
+		if (current->getMaterial()->isCollidable())
+		{
+			std::vector<std::string> stepSounds = current->getMaterial()->getStepSounds();
+			int i = thor::random(0, (int)stepSounds.size() - 1);
+			mObjectManager->getAudioSystem()->playSound(stepSounds[i], false);
+			mFootStepAudio.restart();
+		}
+	}
+
+	if (pActionMap->isActive("Torch"))
+	{
+		Tile *current = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
+		if (current->getTorch() != nullptr)
+		{
+			current->getTorch()->lightsOff();
+			current->getTorch()->setDead(true);
+			current->setTorch(nullptr);
+			mObjectManager->getGroup("torches")->update(dt);
+			mObjectManager->getAudioSystem()->playSound("Remove_Torch", false);
+		}
+		else
+		{
+			mObjectManager->spawnTorch(current->getPosition());
+			mObjectManager->getAudioSystem()->playSound("Place_Torch", false);
+		}
+	}
+
+	Tile *current = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
+	sf::Color color = mSprite->getColor();
+	color.r = current->getQuad()[0].color.a;
+	color.g = current->getQuad()[0].color.a;
+	color.b = current->getQuad()[0].color.a;
+	mSprite->setColor(color);
 
 	mView->setCenter(mSprite->getPosition());
 }
@@ -396,6 +492,10 @@ void Player::hookTo(Hook *pHook)
 	mRope->setTextureRect(sf::IntRect(0, 0, 8, Math::euclideanDistance(from, to)));
 	mRope->setRotation(Math::RAD2DEG(Math::angleBetween(to, from)) + 90.f);
 	mRope->setOrigin(4, mRope->getGlobalBounds().height / 2.f);
+
+	float centerX = (to.x + from.x) / 2.f;
+	float centerY = (to.y + from.y) / 2.f;
+	mRope->setPosition(centerX, centerY);
 
 	mCurrentHook->setJoint(mObjectManager->createDistanceJointBetween(mBody, pHook->getBody(), Math::euclideanDistance(to, from)));
 	mHooked = true;

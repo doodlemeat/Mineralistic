@@ -25,6 +25,8 @@ namespace Math
 
 	float relativeFromInterval(float sourceMin, float sourceMax, float intervalMin, float intervalMax, float n);
 
+	int manhattanDistance(int x1, int y1, int x2, int y2);
+
 	float RAD2DEG(float rad);
 	float DEG2RAD(float deg);
 }

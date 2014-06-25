@@ -19,6 +19,7 @@ public:
 	~GameObject();
 
 	void construct();
+	void teleport(int x, int y);
 	void setBody(b2Body *pBody);
 	void setManager(ObjectManager *pObjectManager);
 	void setGroup(ObjectGroup *pObjectGroup);

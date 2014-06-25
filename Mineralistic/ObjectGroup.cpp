@@ -63,3 +63,19 @@ void ObjectGroup::setManager(ObjectManager *pObjectManager)
 {
 	mObjectManager = pObjectManager;
 }
+
+void ObjectGroup::update(float dt)
+{
+	for (auto &object : mGameObjects)
+	{
+		object->update(dt);
+	}
+}
+
+void ObjectGroup::update(float dt, thor::ActionMap<std::string> *pActionMap)
+{
+	for (auto &object : mGameObjects)
+	{
+		object->update(dt, pActionMap);
+	}
+}

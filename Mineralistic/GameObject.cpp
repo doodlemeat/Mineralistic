@@ -3,6 +3,9 @@
 #include "SFML\Graphics\RenderTarget.hpp"
 #include "GameObject.h"
 #include <assert.h>
+#include "World.h"
+#include "Box2D\Box2D.h"
+#include "PhysicsScale.h"
 
 GameObject::GameObject()
 {
@@ -131,4 +134,11 @@ void GameObject::setDead(bool pValue)
 bool GameObject::isDead()
 {
 	return mDead;
+}
+
+void GameObject::teleport(int x, int y)
+{
+	sf::Vector2f SFMLPosition = WorldHelper::toSFMLPositionFromWorldPosition(sf::Vector2f(x, y), true);
+	mBody->SetTransform(PhysicsScale::gameToPhys(SFMLPosition), 0);
+	mSprite->setPosition(SFMLPosition);
 }

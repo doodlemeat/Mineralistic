@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/System/Vector2.hpp>
+#include <vector>
 
 class Material;
 class Chunk;
@@ -22,19 +23,23 @@ public:
 	b2Body *getBody();
 	void setBodyNull();
 	void setMaterial(Material *pMaterial);
-	void setTorch(Torch *pTorch);
 	void breakNaturally();
-	void updateLight(float pLightLevel);
+	bool isPositionInMyChunk(sf::Vector2f pPosition);
+	Chunk *getChunk();
 	Tile *getRelative(sf::Vector2i pRelativePosition);
-	int getLightLevel();
+	Tile *getRelative(int x, int y);
 	Torch *getTorch();
+	void setLightIntensity(float pIntensity);
+	void setTorch(Torch *pTorch);
+	float getIntensity();
+	sf::Vertex* getQuad() const;
 private:
+	float mIntensity;
 	sf::Vector2f mPosition;
 	Chunk *mChunk;
 	Material *mMaterial;
 	b2Body *mBody;
 	sf::Vertex *mQuad;
-	int mLightLevel; // 0 - 7
 	Torch *mTorch;
 };
 

@@ -9,8 +9,9 @@
 #include "Box2D\Box2D.h"
 #include "PhysicsScale.h"
 #include "Math.h"
-#include "Torch.h"
 #include "Tile.h"
+#include "Monster.h"
+#include "Torch.h"
 
 ObjectManager::ObjectManager()
 {
@@ -168,12 +169,10 @@ void ObjectManager::update(float dt, thor::ActionMap<std::string> *pActionMap)
 	}
 
 	getObject("Player")->update(dt, pActionMap);
-	
-	std::vector<GameObject*> *objects = getGroup("hooks")->getObjects();
-	for (auto &hook : *objects)
-	{
-		hook->update(dt);
-	}
+	getGroup("hooks")->update(dt);
+	getGroup("monsters")->update(dt);
+	getGroup("torches")->update(dt);
+
 }
 
 AudioSystem *ObjectManager::getAudioSystem()
@@ -242,22 +241,6 @@ b2World *ObjectManager::getB2World()
 	return mB2World;
 }
 
-Torch *ObjectManager::spawnTorch(sf::Vector2f pWorldPosition, Tile *pCurrent)
-{
-	Torch *torch = new Torch();
-	torch->getSprite()->setTexture(mResourceHolder->getTexture("torch.png"));
-	torch->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
-	torch->getSprite()->setOrigin(32, 32);
-	getGroup("torches")->addGameObject(torch);
-	pCurrent->setTorch(torch);
-	
-	// Update light for affected blocks
-	int iterations = 0;
-	mWorld->processNeighborLight(pCurrent, 7, &iterations);
-	std::cout << "iterations: " << iterations;
-	return torch;
-}
-
 void ObjectManager::setWorld(World *pWorld)
 {
 	mWorld = pWorld;
@@ -266,4 +249,65 @@ void ObjectManager::setWorld(World *pWorld)
 World *ObjectManager::getWorld()
 {
 	return mWorld;
+}
+
+void ObjectManager::spawnMonster(sf::Vector2f pWorldPosition)
+{
+	Monster *monster = new Monster();
+	monster->getSprite()->setTexture(mResourceHolder->getTexture("mumba.png"));
+	monster->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
+	monster->getSprite()->setOrigin(32, 32);
+	monster->setGroup(getGroup("monsters"));
+
+	thor::FrameAnimation *walkLeft = new thor::FrameAnimation();
+	walkLeft->addFrame(1.f, sf::IntRect(0, 0, 64, 64));
+	walkLeft->addFrame(1.f, sf::IntRect(64, 0, 64, 64));
+	walkLeft->addFrame(1.f, sf::IntRect(128, 0, 64, 64));
+	walkLeft->addFrame(1.f, sf::IntRect(192, 0, 64, 64));
+
+	thor::FrameAnimation *walkRight = new thor::FrameAnimation();
+	walkRight->addFrame(1.f, sf::IntRect(0, 64, 64, 64));
+	walkRight->addFrame(1.f, sf::IntRect(64, 64, 64, 64));
+	walkRight->addFrame(1.f, sf::IntRect(128, 64, 64, 64));
+	walkRight->addFrame(1.f, sf::IntRect(192, 64, 64, 64));
+
+	monster->addAnimation("Walk_Left", walkLeft, sf::seconds(0.3f));
+	monster->addAnimation("Walk_Right", walkRight, sf::seconds(0.3f));
+	monster->getAnimator()->playAnimation("Walk_Left", true);
+
+	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
+	b2Vec2 pos = PhysicsScale::gameToPhys(monster->getSprite()->getPosition());
+	bodyDef.position.Set(pos.x, pos.y);
+	bodyDef.fixedRotation = true;
+	b2Body *body = mB2World->CreateBody(&bodyDef);
+
+	b2PolygonShape boxShape;
+	sf::Vector2f boundingBox(10, 28);
+	b2Vec2 boundingBoxPhysic = PhysicsScale::gameToPhys(boundingBox);
+	boxShape.SetAsBox(boundingBoxPhysic.x, boundingBoxPhysic.y);
+
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &boxShape;
+	fixtureDef.density = 1;
+	fixtureDef.friction = 1;
+	body->CreateFixture(&fixtureDef);
+	monster->setBody(body);
+
+	getGroup("monsters")->addGameObject(monster);
+}
+
+void ObjectManager::spawnTorch(sf::Vector2f pWorldPosition)
+{
+	Torch *torch = new Torch(16, 16);
+	torch->getSprite()->setTexture(mResourceHolder->getTexture("torch.png"));
+	torch->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
+	torch->getSprite()->setOrigin(32, 32);
+	torch->setGroup(getGroup("torches"));
+
+	Tile *tile = mWorld->getTileByWorldPosition(pWorldPosition);
+	torch->setTile(tile);
+	tile->setTorch(torch);
+
+	getGroup("torches")->addGameObject(torch);
 }

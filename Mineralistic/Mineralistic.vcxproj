@@ -93,6 +93,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Monster.cpp" />
     <ClCompile Include="noiseutils.cpp" />
     <ClCompile Include="PhysicsHelper.cpp" />
     <ClCompile Include="PhysicsScale.cpp" />
@@ -131,6 +132,7 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuState.h" />
+    <ClInclude Include="Monster.h" />
     <ClInclude Include="noiseutils.h" />
     <ClInclude Include="ObjectGroup.h" />
     <ClInclude Include="ObjectManager.h" />

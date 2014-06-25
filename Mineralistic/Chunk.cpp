@@ -15,27 +15,35 @@ Chunk::Chunk(World *pWorld, b2World *pB2World)
 {
 	mWorld = pWorld;
 	mB2World = pB2World;
-	mChunkBorder.setOutlineThickness(4);
-	mChunkBorder.setSize(sf::Vector2f(8 * 64, 8 * 64));
-	mChunkBorder.setOutlineColor(sf::Color::White);
-	mChunkBorder.setFillColor(sf::Color::Transparent);
+
+	// Allocate space for tiles
+	mTiles = new Tile**[8];
+	for (int i = 0; i < 8; i++)
+	{
+		mTiles[i] = new Tile*[8];
+	}
+
+	// Set default value of nullptr
+	for (int x = 0; x < 8; x++)
+	{
+		for (int y = 0; y < 8; y++)
+		{
+			mTiles[x][y] = nullptr;
+		}
+	}
 }
 
 Chunk::~Chunk()
 {
-	auto iterTile = mTiles.begin();
-	while (iterTile != mTiles.end())
+	for (int x = 0; x < 8; x++)
 	{
-		auto it = (*iterTile).begin();
-		while (it != (*iterTile).end())
+		for (int y = 0; y < 8; y++)
 		{
-			Tile *tile = (*it);
-			delete tile;
-			tile = nullptr;
-			++it;
+			delete mTiles[x][y];
 		}
-		++iterTile;
+		delete[] mTiles[x];
 	}
+	delete[] mTiles;
 }
 
 bool Chunk::isPosition(sf::Vector2i pPosition)
@@ -46,43 +54,32 @@ bool Chunk::isPosition(sf::Vector2i pPosition)
 void Chunk::setPosition(sf::Vector2i pPosition)
 {
 	mPosition = pPosition;
-	mChunkBorder.setPosition(WorldHelper::toSFMLPositionFromWorldPosition(WorldHelper::toWorldPositionFromChunkPosition(mPosition)));
 }
 
 void Chunk::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
-	// apply the tileset texture
 	states.texture = &mTexture;
-
-	// draw the vertex array
 	target.draw(mVertices, states);
 }
 
 void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 {
-	// Resize the tiles space
-	mTiles.resize(pHeightMap->GetWidth());
-	for (std::size_t x = 0; x < mTiles.size(); x++)
-	{
-		mTiles[x].resize(pHeightMap->GetHeight());
-	}
-
 	// Set vertices type and size
 	mVertices.setPrimitiveType(sf::Quads);
-	mVertices.resize(pHeightMap->GetWidth() * pHeightMap->GetWidth() * 4);
+	mVertices.resize(8 * 8 * 4);
 
 	// Get the offset position of all tiles position
-	sf::Vector2i tileSize = mWorld->getTileSize();
-	sf::Vector2i chunkSize = mWorld->getChunkSize();
 	sf::Vector2f offsetPositon = sf::Vector2f(mPosition);
-	offsetPositon.x *= chunkSize.x;
-	offsetPositon.y *= chunkSize.y;
+	offsetPositon.x *= 64 * 8;
+	offsetPositon.y *= 64 * 8;
 
 	// Build tiles
-	for (std::size_t x = 0; x < mTiles.size(); x++)
+	for (int x = 0; x < 8; x++)
 	{
-		for (std::size_t y = 0; y < mTiles[x].size(); y++)
+		for (int y = 0; y < 8; y++)
 		{
+			sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromChunkPosition(mPosition) + sf::Vector2f(x, y);
+
 			// Sometimes libnoise can return a value over 1.0, better be sure to cap the top and bottom..
 			float heightValue = pHeightMap->GetValue(x, y);
 			if (heightValue > 1.f) heightValue = 1.f;
@@ -91,16 +88,29 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			// Get a pointer to the current tile's quad
 			sf::Vertex *quad = &mVertices[(x + y * pHeightMap->GetWidth()) * 4];
 
-			quad[0].position = sf::Vector2f(offsetPositon.x + x * tileSize.x, offsetPositon.y + y * tileSize.y);
-			quad[1].position = sf::Vector2f(offsetPositon.x + (x + 1) * tileSize.x, offsetPositon.y + y * tileSize.y);
-			quad[2].position = sf::Vector2f(offsetPositon.x + (x + 1) * tileSize.x, offsetPositon.y + (y + 1) * tileSize.y);
-			quad[3].position = sf::Vector2f(offsetPositon.x + x * tileSize.x, offsetPositon.y + (y + 1) * tileSize.y);
+			quad[0].position = sf::Vector2f(offsetPositon.x + x * 64, offsetPositon.y + y * 64);
+			quad[1].position = sf::Vector2f(offsetPositon.x + (x + 1) * 64, offsetPositon.y + y * 64);
+			quad[2].position = sf::Vector2f(offsetPositon.x + (x + 1) * 64, offsetPositon.y + (y + 1) * 64);
+			quad[3].position = sf::Vector2f(offsetPositon.x + x * 64, offsetPositon.y + (y + 1) * 64);
 
-			TileStop *tilestop = mWorld->getTileStopAt(heightValue);
-			sf::FloatRect textureRect = static_cast<sf::FloatRect>(tilestop->getMaterial()->getTextureRect());
-
-			// find out which type of tile to render
-			Material *material = tilestop->getMaterial();
+			Material *material = nullptr;
+			if (worldPosition.y <= -5)
+			{
+				material = mWorld->getMaterial("Sky");
+			}
+			else if(worldPosition.y == -4)
+			{
+				material = mWorld->getMaterial("Grass");
+			}
+			else if (worldPosition.y >= -3 && worldPosition.y <= 0)
+			{
+				material = mWorld->getMaterial("Dirt");
+			}
+			else
+			{
+				material = mWorld->getTileStopAt(heightValue)->getMaterial();
+			}
+			sf::FloatRect textureRect = static_cast<sf::FloatRect>(material->getTextureRect());
 
 			// define its 4 texture coordinates
 			quad[0].texCoords = sf::Vector2f(textureRect.left, textureRect.top) + sf::Vector2f(0.5f, 0.5f);
@@ -115,7 +125,7 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 
 			// create a physics body
 			b2Body *body = nullptr;
-			if (tilestop->getMaterial()->isCollidable())
+			if (material->isCollidable())
 			{
 				sf::Vector2f vertices[4];
 				vertices[0] = quad[0].position;
@@ -125,33 +135,78 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 				body = mWorld->createChain(vertices, 4);
 			}
 
-			sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromChunkPosition(mPosition) + sf::Vector2f(x, y);
-
 			// Instantiate a new Tile object with the noise value, this doesn't do anything yet..
 			mTiles[x][y] = new Tile(this, worldPosition, material, body, quad);
 		}
 	}
-
+	
 	// Get a list of avaible lumpables
+	int iter = 0;
 	sf::Vector2f worldPos = WorldHelper::toWorldPositionFromChunkPosition(mPosition);
 	std::vector<Material*> lumpables = mWorld->getLumpables(worldPos.y);
 	if (lumpables.size() > 0)
 	{
-		int maxLumps = thor::random(1, 3);
+		int maxLumps = thor::random(0, 1);
 
 		for (int i = 0; i < maxLumps; i++)
 		{
+			// An array to hold all tiles that has been generated into the lump
+			Tile *usedTiles[10];
+			int currentIndex = 1;
+
+			// Get a random position in a chunk
 			int x = thor::random(0, 7);
 			int y = thor::random(0, 7);
-			if (!mTiles[x][y]->getMaterial()->isCollidable()) continue;
+
+			// If its not collidable, we quit this lump
+			if (!mTiles[x][y]->getMaterial()->isCollidable()) break;
+
+			// Get a random material
 			int randomIndex = thor::random(0, static_cast<int>(lumpables.size() - 1));
 			Material* material = lumpables[randomIndex];
-			int lumpSize = thor::random(material->getMinLumpSize(), material->getMaxLumpSize()) - 1;
 			mTiles[x][y]->setMaterial(material);
-			Tile *usedTiles[10];
-			for (int j = 0; j < lumpSize; j++)
-			{
+			usedTiles[0] = mTiles[x][y];
 
+			// Randomize how big the lump is going to be
+			int lumpSize = thor::random(material->getMinLumpSize(), material->getMaxLumpSize() - 1);
+
+			for (int j = 0; j < lumpSize - 1; j++)
+			{
+				iter++;
+				// Get random relative tile
+				Tile* randomUsedTile = usedTiles[thor::random(0, currentIndex - 1)];
+				int randomDirection = thor::random(0, 3);
+
+				sf::Vector2f relative;
+				switch (randomDirection)
+				{
+				case 0: // North
+					relative = sf::Vector2f(0, -1);
+					break;
+				case 1: // East
+					relative = sf::Vector2f(1, 0);
+					break;
+				case 2: // South
+					relative = sf::Vector2f(0, 1);
+					break;
+				case 3: // West
+					relative = sf::Vector2f(-1, 0);
+					break;
+				default:
+					break;
+				}
+
+
+				if (randomUsedTile->isPositionInMyChunk(randomUsedTile->getPosition() + relative))
+				{
+					Tile* relativeTile = randomUsedTile->getRelative(sf::Vector2i(relative));
+					if (relativeTile->getMaterial()->isCollidable())
+					{
+						relativeTile->setMaterial(material);
+						usedTiles[currentIndex] = relativeTile;
+						currentIndex++;
+					}
+				}
 			}
 		}
 	}
@@ -178,6 +233,11 @@ Tile *Chunk::getTile(sf::Vector2i pPosition)
 	return mTiles[pPosition.x][pPosition.y];
 }
 
+Tile * Chunk::getTile(int x, int y)
+{
+	return mTiles[x][y];
+}
+
 World *Chunk::getWorld()
 {
 	return mWorld;
@@ -192,4 +252,10 @@ sf::Vertex* Chunk::getVertices(sf::Vector2f pWorldPosition)
 {
 	sf::Vector2i tilePos = WorldHelper::toLocalTilePositionFromWorldPosition(pWorldPosition);
 	return &mVertices[(tilePos.x + tilePos.y * 8) * 4];
+}
+
+Chunk *Chunk::getRelative(sf::Vector2i pRelativePosition)
+{
+	sf::Vector2i newChunkPosition = mPosition + pRelativePosition;
+	return mWorld->getChunkByChunkPosition(newChunkPosition);
 }

@@ -2,13 +2,24 @@
 
 #include "GameObject.h"
 
-class Torch: public GameObject
+class Tile;
+
+class Torch : public GameObject
 {
 public:
-	Torch();
+	Torch(int pWidth, int pHeight);
 	~Torch();
 
 	void update(float dt);
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
+	void processNeighbors(int pX, int pY, float pIntensity);
+	void setTile(Tile *pTile);
+	void lightsOff();
+	void smoothLight(int pX, int pY);
+private:
+	sf::Color lightColor;
+	int mWidth;
+	int mHeight;
+	Tile *mTile;
+	Tile **mTilesInRange;
 };
-

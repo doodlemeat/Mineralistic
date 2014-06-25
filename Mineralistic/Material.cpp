@@ -15,11 +15,17 @@ MaterialDef::MaterialDef(MaterialDef *pMaterialDef)
 	maxLumpSize = pMaterialDef->maxLumpSize;
 	minLumpSize = pMaterialDef->minLumpSize;
 	collidable = pMaterialDef->collidable;
+	breakSound = pMaterialDef->breakSound;
+	breakBlockType = pMaterialDef->breakBlockType;
+	breakingSound = pMaterialDef->breakingSound;
+	stepSounds = pMaterialDef->stepSounds;
 }
 
 void MaterialDef::initDefaults()
 {
 	name = "";
+	breakSound = "";
+	breakingSound = "";
 	resistance = 1;
 	textureRect = sf::IntRect(0, 0, 0, 0);
 	upperLimitY = 0;
@@ -27,11 +33,13 @@ void MaterialDef::initDefaults()
 	maxLumpSize = 2;
 	minLumpSize = 1;
 	collidable = false;
+	breakBlockType = PICKAXE;
 }
 
 Material::Material(MaterialDef *pMaterialDef)
 {
 	mName = pMaterialDef->name;
+	mBreakSound = pMaterialDef->breakSound;
 	mLumpable = pMaterialDef->lumpable;
 	mCollidable = pMaterialDef->collidable;
 	mTextureRect = pMaterialDef->textureRect;
@@ -39,79 +47,67 @@ Material::Material(MaterialDef *pMaterialDef)
 	mUpperLimitY = pMaterialDef->upperLimitY;
 	mMinLumpSize = pMaterialDef->minLumpSize;
 	mMaxLumpSize = pMaterialDef->maxLumpSize;
+	mBlockBreakType = pMaterialDef->breakBlockType;
+	mBreakingSound = pMaterialDef->breakingSound;
+	mStepSounds = pMaterialDef->stepSounds;
 }
 
-void Material::setCollidable(bool pValue)
-{
-	mCollidable = pValue;
-}
-
-void Material::setTextureRect(sf::IntRect pTextureRect)
-{
-	mTextureRect = pTextureRect;
-}
-
-bool Material::isCollidable()
+const bool Material::isCollidable() const
 {
 	return mCollidable;
 }
 
-std::string Material::getName()
+const std::string &Material::getName() const
 {
 	return mName;
 }
 
-sf::IntRect Material::getTextureRect()
+const sf::IntRect &Material::getTextureRect() const
 {
 	return mTextureRect;
 }
 
-void Material::setResistance(int pResistance)
-{
-	mResistance = pResistance;
-}
-
-int Material::getResistance()
+const float &Material::getResistance() const
 {
 	return mResistance;
 }
 
-void Material::setLumpable(bool pValue)
-{
-	mLumpable = pValue;
-}
-
-bool Material::isLumpable()
+const bool Material::isLumpable() const
 {
 	return mLumpable;
 }
 
-void Material::setUpperLimitY(int pUpperLimitY)
-{
-	mUpperLimitY = pUpperLimitY;
-}
-
-void Material::setMinLumpSize(int pMinLumpSize)
-{
-	mMinLumpSize = pMinLumpSize;
-}
-
-void Material::setMaxLumpSize(int pMaxLumpSize)
-{
-	mMaxLumpSize = pMaxLumpSize;
-}
-
-int Material::getUpperLimitY()
+const int &Material::getUpperLimitY() const
 {
 	return mUpperLimitY;
 }
 
-int Material::getMinLumpSize()
+const int &Material::getMinLumpSize() const
 {
 	return mMinLumpSize;
 }
 
-int Material::getMaxLumpSize()
+const int &Material::getMaxLumpSize() const
 {
 	return mMaxLumpSize;
+}
+
+const std::string &Material::getBreakSound() const
+{
+	return mBreakSound;
+}
+
+const BreakBlockType &Material::getBlockBreakType() const
+{
+	return mBlockBreakType;
+}
+
+const std::string & Material::getBreakingSound() const
+{
+	return mBreakingSound;
+}
+
+const std::vector<std::string> & Material::getStepSounds() const
+{
+	return mStepSounds;
 }

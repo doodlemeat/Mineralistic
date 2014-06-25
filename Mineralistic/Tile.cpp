@@ -61,7 +61,6 @@ void Tile::setMaterial(Material *pMaterial)
 		if (oldMaterial->isCollidable())
 		{
 			mChunk->getB2World()->DestroyBody(mBody);
-			mBody = nullptr;
 		}
 		sf::Vector2f vertices[4];
 		vertices[0] = mQuad[0].position;
@@ -75,7 +74,6 @@ void Tile::setMaterial(Material *pMaterial)
 		if (oldMaterial->isCollidable())
 		{
 			mChunk->getB2World()->DestroyBody(mBody);
-			mBody = nullptr;
 		}
 	}
 }
@@ -87,26 +85,49 @@ void Tile::breakNaturally()
 
 Tile *Tile::getRelative(sf::Vector2i pRelativePosition)
 {
+	return getRelative(pRelativePosition.x, pRelativePosition.y);
+}
+
+Tile *Tile::getRelative(int x, int y)
+{
 	sf::Vector2f newPosition;
-	newPosition.x = mPosition.x + pRelativePosition.x;
-	newPosition.y = mPosition.y + pRelativePosition.y;
+	newPosition.x = mPosition.x + x;
+	newPosition.y = mPosition.y + y;
 	Tile *newTile = mChunk->getWorld()->getTileByWorldPosition(newPosition);
 	return newTile;
 }
 
-void Tile::updateLight(float pLightLevel)
+bool Tile::isPositionInMyChunk(sf::Vector2f pPosition)
 {
-	mLightLevel = pLightLevel;
-	float opacity = Math::relativeFromInterval(100, 255, 0, 7, mLightLevel);
-	mQuad[0].color = sf::Color(255, 255, 255, opacity);
-	mQuad[1].color = sf::Color(255, 255, 255, opacity);
-	mQuad[2].color = sf::Color(255, 255, 255, opacity);
-	mQuad[3].color = sf::Color(255, 255, 255, opacity);
+	Chunk* chunk = mChunk;
+	sf::Vector2f upper_left_corner = chunk->getTile(sf::Vector2i(0, 0))->getPosition();
+	sf::Vector2f lower_right_corner = chunk->getTile(sf::Vector2i(7, 7))->getPosition();
+	if (pPosition.x >= upper_left_corner.x && pPosition.x <= lower_right_corner.x &&
+		pPosition.y >= upper_left_corner.y && pPosition.y <= lower_right_corner.y)
+	{
+		return true;
+	}
+	return false;
 }
 
-int Tile::getLightLevel()
+Chunk * Tile::getChunk()
 {
-	return mLightLevel;
+	return mChunk;
+}
+
+void Tile::setLightIntensity(float pIntensity)
+{
+	mIntensity = pIntensity;
+	int alpha = Math::relativeFromInterval(100, 255, 0, 7, mIntensity);
+	mQuad[0].color.a = alpha;
+	mQuad[1].color.a = alpha;
+	mQuad[2].color.a = alpha;
+	mQuad[3].color.a = alpha;
+}
+
+float Tile::getIntensity()
+{
+	return mIntensity;
 }
 
 void Tile::setTorch(Torch *pTorch)
@@ -117,4 +138,9 @@ void Tile::setTorch(Torch *pTorch)
 Torch *Tile::getTorch()
 {
 	return mTorch;
+}
+
+sf::Vertex* Tile::getQuad() const
+{
+	return mQuad;
 }

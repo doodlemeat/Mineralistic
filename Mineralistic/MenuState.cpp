@@ -3,6 +3,7 @@
 #include "GameStateAsset.h"
 #include "GameEngine.h"
 #include <iostream>
+#include "AudioSystem.h"
 
 MenuState::MenuState()
 {
@@ -15,6 +16,7 @@ MenuState::~MenuState()
 
 void MenuState::entering()
 {
+	mAssets->audioSystem->playMusic("Ambient_1");
 	std::cout << "Entering menu state" << std::endl;
 }
 

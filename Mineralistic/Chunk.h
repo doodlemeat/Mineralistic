@@ -33,20 +33,21 @@ public:
 	// Global chunk position
 	Tile *getTileAt(sf::Vector2f pPosition);
 
-	// Local chunk position
 	Tile *getTile(sf::Vector2i pPosition);
+	Tile *getTile(int x, int y);
+
 	World *getWorld();
 	b2World *getB2World();
-	sf::Vertex* getVertices(sf::Vector2f pWorldPosition);
+	sf::Vertex *getVertices(sf::Vector2f pWorldPosition);
+	Chunk *getRelative(sf::Vector2i pRelativePosition);
 
 private:
 	World* mWorld;
 	b2World *mB2World;
 	sf::Vector2i mPosition;
-	std::vector<std::vector<Tile*>> mTiles;
+	Tile***mTiles;
 
 	sf::Texture mTexture;
 	sf::VertexArray mVertices;
-	sf::RectangleShape mChunkBorder;
 };
 

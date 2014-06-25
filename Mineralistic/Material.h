@@ -2,6 +2,13 @@
 
 #include "SFML/Graphics/Rect.hpp"
 #include <string>
+#include <vector>
+
+enum BreakBlockType
+{
+	PICKAXE,
+	SHOVEL
+};
 
 struct MaterialDef
 {
@@ -9,29 +16,18 @@ struct MaterialDef
 	MaterialDef(MaterialDef *pMaterialDef);
 	void initDefaults();
 
-	// Defaults ""
 	std::string name;
-
-	// Defaults false
+	std::string breakSound;
+	std::string breakingSound;
 	bool collidable;
-
-	// Defaults false
 	bool lumpable;
-
-	// Defaults sf::IntRect(0, 0, 0, 0)
 	sf::IntRect textureRect;
-
-	// Defaults 1
-	int resistance;
-
-	// Defaults 0
+	float resistance;
 	int upperLimitY;
-
-	// Defaults 1
 	int minLumpSize;
-
-	// Defaults 2
 	int maxLumpSize;
+	BreakBlockType breakBlockType;
+	std::vector<std::string> stepSounds;
 };
 
 class Material
@@ -39,28 +35,31 @@ class Material
 public:
 	Material(MaterialDef *pMaterialDef);
 
-	void setCollidable(bool pValue);
-	void setLumpable(bool pValue);
-	void setTextureRect(sf::IntRect pTextureRect);
-	void setResistance(int pResistance);
-	void setUpperLimitY(int pUpperLimitY);
-	void setMinLumpSize(int pMinLumpSize);
-	void setMaxLumpSize(int pMaxLumpSize);
+	const std::vector<std::string> &getStepSounds() const;
+	const std::string &getName() const;
+	const std::string &getBreakSound() const;
+	const std::string &getBreakingSound() const;
+	const sf::IntRect &getTextureRect() const;
 
-	std::string getName();
-	sf::IntRect getTextureRect();
-	int getResistance();
-	int getUpperLimitY();
-	int getMinLumpSize();
-	int getMaxLumpSize();
+	const BreakBlockType &getBlockBreakType() const;
 
-	bool isCollidable();
-	bool isLumpable();
+	const float &getResistance() const;
+	const int &getUpperLimitY() const;
+	const int &getMinLumpSize() const;
+	const int &getMaxLumpSize() const;
+
+	const bool isCollidable() const;
+	const bool isLumpable() const;
 private:
 	sf::IntRect mTextureRect;
 	std::string mName;
+	std::string mBreakSound;
+	std::string mBreakingSound;
+	std::vector<std::string> mStepSounds;
 
-	int mResistance;
+	BreakBlockType mBlockBreakType;
+
+	float mResistance;
 	int mUpperLimitY;
 	int mMinLumpSize;
 	int mMaxLumpSize;

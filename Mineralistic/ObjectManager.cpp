@@ -306,8 +306,8 @@ void ObjectManager::spawnTorch(sf::Vector2f pWorldPosition)
 	torch->setGroup(getGroup("torches"));
 
 	Tile *tile = mWorld->getTileByWorldPosition(pWorldPosition);
-	torch->setTile(tile);
 	tile->setTorch(torch);
+	torch->setTile(tile);
 
 	getGroup("torches")->addGameObject(torch);
 }

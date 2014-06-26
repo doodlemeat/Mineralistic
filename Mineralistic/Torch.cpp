@@ -33,7 +33,7 @@ void Torch::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
 void Torch::smoothLight(int pX, int pY)
 {
-	if (pX == 0 || pX == (mWidth - 1) || pY == 0 || pY == (mHeight - 1)) return;
+	/*if (pX == 0 || pX == (mWidth - 1) || pY == 0 || pY == (mHeight - 1)) return;
 
 	// Tile we are smoothing
 	Tile *c = mTilesInRange[pY * mWidth + pX];
@@ -54,25 +54,6 @@ void Torch::smoothLight(int pX, int pY)
 	Tile *SE = mTilesInRange[y_plus_1 * mWidth + x_plus_1];
 	Tile *W = mTilesInRange[pY * mWidth + x_min_1];
 
-	/*
-		- Loop trough all 4 vertices on the tile in the following order
-
-		0 1
-		2 3
-
-		- For each vertex, find the 3 other vertices that lies on the same point, example vertex 1:
-
-		0 1  <--
-		2 3
-
-							0 1 0 1
-							2 3 2 3
-		Original quad   ->	0 1 0 1
-						->	2 3 2 3
-
-		Result: 3 2
-				1 0
-	*/
 	for (int i = 0; i < 4; i++)
 	{
 		int intensitySum = 0;
@@ -118,7 +99,7 @@ void Torch::smoothLight(int pX, int pY)
 			int alpha = intensitySum / 4;
 			c->getQuad()[3].color.a = alpha;
 		}
-	}
+	}*/
 }
 
 void Torch::processNeighbors(int pX, int pY, float pIntensity)
@@ -187,7 +168,7 @@ void Torch::setTile(Tile *pTile)
 		height--;
 	}
 
-	// Gather affeced tiles
+	// Gather affected tiles
 	int cx = mWidth >> 1;
 	int cy = mHeight >> 1;
 	int row = 0;
@@ -203,7 +184,7 @@ void Torch::setTile(Tile *pTile)
 		}
 		column++;
 	}
-	processNeighbors(mWidth >> 1, mHeight >> 1, 7.f);
+	//processNeighbors(mWidth >> 1, mHeight >> 1, 7.f);
 }
 
 void Torch::lightsOff()

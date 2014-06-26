@@ -1,6 +1,5 @@
 #include "GameEngine.h"
 #include "IntroState.h"
-#include "vld.h"
 
 int main(int argc, char *argv[])
 {

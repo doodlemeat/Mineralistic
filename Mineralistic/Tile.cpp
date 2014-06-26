@@ -16,6 +16,7 @@ Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *p
 	mPosition = pPosition;
 	mQuad = pQuad;
 	mTorch = nullptr;
+	mIntensity = 0;
 }
 
 

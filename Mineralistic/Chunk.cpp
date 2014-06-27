@@ -13,6 +13,7 @@
 
 Chunk::Chunk(World *pWorld, b2World *pB2World)
 {
+	mActive = true;
 	mWorld = pWorld;
 	mB2World = pB2World;
 

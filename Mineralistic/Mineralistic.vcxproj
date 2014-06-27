@@ -87,6 +87,7 @@
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="B2ContactListener.cpp" />
     <ClCompile Include="Box2DWorldDraw.cpp" />
+    <ClCompile Include="BreakAffector.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Hook.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="B2ContactListener.h" />
     <ClInclude Include="Box2DWorldDraw.h" />
+    <ClInclude Include="BreakAffector.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="GameEngine.h" />

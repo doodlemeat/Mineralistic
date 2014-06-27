@@ -114,6 +114,9 @@
     <ClCompile Include="Torch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BreakAffector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine.h">
@@ -207,6 +210,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Torch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BreakAffector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

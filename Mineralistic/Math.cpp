@@ -70,6 +70,16 @@ namespace Math
 		return std::abs(x1 - x2) + std::abs(y1 - y2);
 	}
 
+	sf::IntRect scaleRect(const sf::IntRect &pRect, float pFactor)
+	{
+		sf::IntRect scaledRect;
+		scaledRect.left = (int)((float)pRect.left * pFactor);
+		scaledRect.top = (int)((float)pRect.top * pFactor);
+		scaledRect.width = (int)((float)pRect.width * pFactor);
+		scaledRect.height = (int)((float)pRect.height * pFactor);
+		return scaledRect;
+	}
+
 }
 
 

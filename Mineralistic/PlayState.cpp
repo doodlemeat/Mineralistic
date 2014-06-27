@@ -21,6 +21,9 @@
 #include "ObjectGroup.h"
 #include "Config.h"
 #include "Tile.h"
+#include "Logger.h"
+#include <string>
+#include "Math.h"
 
 PlayState::PlayState()
 {
@@ -55,7 +58,8 @@ void PlayState::entering()
 	mObjectManager->setAudioSystem(mAssets->audioSystem);
 	mObjectManager->setResourceHolder(mAssets->resourceHolder);
 	mObjectManager->setB2World(mB2World);
-	mWorld = new World(sf::Vector2i(8, 8), sf::Vector2i(64, 64), mAssets->resourceHolder->getTexture("tileset.png"), mObjectManager, mB2World);
+
+	mWorld = new World(mAssets->resourceHolder->getTexture("tileset.png"), mObjectManager, mB2World);
 	mObjectManager->setWorld(mWorld);
 
 	mB2DebugDraw = new Box2DWorldDraw(mAssets->windowManager->getWindow());
@@ -185,7 +189,7 @@ void PlayState::draw()
 
 	mAssets->windowManager->drawWorld(mWorld);
 	mAssets->windowManager->drawObjectManager(mObjectManager);
-
+	mAssets->windowManager->getWindow()->draw(*mWorld->getBlockParticleSystem());
 	mAssets->windowManager->getWindow()->setView(mAssets->windowManager->getWindow()->getDefaultView());
 
 	if (mDebugToggled)
@@ -487,4 +491,45 @@ void PlayState::registerMaterials()
 	mWorld->addTileStop("Air", 0.f);
 	mWorld->addTileStop("Stone", 0.5f);
 	mWorld->addTileStop("Packed Stone", 1.f);
+
+	thor::ParticleSystem *pSystem = mWorld->getBlockParticleSystem();
+	
+	sf::Texture particleTexture = mAssets->resourceHolder->getTexture("tileset.png");
+	
+	// Scale down image using the nearest neighbor interpolation
+
+	float scaleFactor = 0.25; // 50%
+	sf::Image image = particleTexture.copyToImage();
+
+	int scaledWidth = (int)(scaleFactor * image.getSize().x);
+	int scaledHeight = (int)(scaleFactor * image.getSize().y);
+
+	sf::Image newImage;
+	newImage.create(scaledWidth, scaledHeight, sf::Color::Black);
+
+	float xRatio = (float)image.getSize().x / (float)scaledWidth;
+	float yRatio = (float)image.getSize().y / (float)scaledHeight;
+
+	int xPos;
+	int yPos;
+	for (int x = 0; x < scaledWidth; x++)
+	{
+		for (int y = 0; y < scaledHeight; y++)
+		{
+			xPos = std::floor(x * xRatio);
+			yPos = std::floor(y * yRatio);
+			newImage.setPixel(x, y, image.getPixel(xPos, yPos));
+		}
+	}
+
+	std::string filename = "block_break_particles";
+	newImage.saveToFile(mAssets->resourceHolder->getTexturePath() + filename + ".png");
+
+	pSystem->setTexture(mAssets->resourceHolder->getTexture(filename + ".png"));
+
+	for (auto &material : mWorld->getMaterialList())
+	{
+		unsigned int index = pSystem->addTextureRect(Math::scaleRect(material->getTextureRect(), 0.25));
+		material->setParticleRectIndex((int)index);
+	}
 }

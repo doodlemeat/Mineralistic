@@ -35,6 +35,8 @@ class Material
 public:
 	Material(MaterialDef *pMaterialDef);
 
+	void setParticleRectIndex(const int &pRectIndex);
+
 	const std::vector<std::string> &getStepSounds() const;
 	const std::string &getName() const;
 	const std::string &getBreakSound() const;
@@ -47,6 +49,7 @@ public:
 	const int &getUpperLimitY() const;
 	const int &getMinLumpSize() const;
 	const int &getMaxLumpSize() const;
+	const int &getParticleRectIndex() const;
 
 	const bool isCollidable() const;
 	const bool isLumpable() const;
@@ -63,6 +66,7 @@ private:
 	int mUpperLimitY;
 	int mMinLumpSize;
 	int mMaxLumpSize;
+	int mParticleRectIndex;
 	
 	bool mCollidable;
 	bool mLumpable;

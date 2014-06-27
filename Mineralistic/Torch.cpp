@@ -184,7 +184,6 @@ void Torch::setTile(Tile *pTile)
 		}
 		column++;
 	}
-	//processNeighbors(mWidth >> 1, mHeight >> 1, 7.f);
 }
 
 void Torch::lightsOff()

@@ -42,6 +42,7 @@ public:
 	Chunk *getRelative(sf::Vector2i pRelativePosition);
 
 private:
+	bool mActive;
 	World* mWorld;
 	b2World *mB2World;
 	sf::Vector2i mPosition;

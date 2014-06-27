@@ -7,6 +7,10 @@
 #include "Logger.h"
 #include <iostream>
 #include "Math.h"
+#include "Thor/Math/Distributions.hpp"
+#include "Thor/Animation/FadeAnimation.hpp"
+#include "Thor/Particles/Affectors.hpp"
+#include "BreakAffector.h"
 
 Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad)
 {
@@ -81,6 +85,19 @@ void Tile::setMaterial(Material *pMaterial)
 
 void Tile::breakNaturally()
 {
+	if (!mMaterial->isCollidable()) return;
+
+	thor::UniversalEmitter emitter = mChunk->getWorld()->getBlockParticleEmitter();
+	emitter.setEmissionRate(60);
+	emitter.setParticleLifetime(sf::seconds(1.f)); 
+	emitter.setParticleRotation(thor::Distributions::uniform(0.f, 360.f));
+	emitter.setParticleRotationSpeed(thor::Distributions::uniform(6, 15));
+	emitter.setParticlePosition(thor::Distributions::circle(WorldHelper::toSFMLPositionFromWorldPosition(mPosition, true), 10));
+	emitter.setParticleVelocity(thor::Distributions::deflect(sf::Vector2f(0, -96), 20));
+	emitter.setParticleTextureIndex(mMaterial->getParticleRectIndex());
+
+	thor::ParticleSystem *pSystem = mChunk->getWorld()->getBlockParticleSystem();
+	pSystem->addEmitter(emitter, sf::seconds(0.1f));
 	setMaterial(mChunk->getWorld()->getMaterial("Air"));
 }
 

@@ -111,3 +111,13 @@ const std::vector<std::string> & Material::getStepSounds() const
 {
 	return mStepSounds;
 }
+
+void Material::setParticleRectIndex(const int &pRectIndex)
+{
+	mParticleRectIndex = pRectIndex;
+}
+
+const int &Material::getParticleRectIndex() const
+{
+	return mParticleRectIndex;
+}

@@ -29,5 +29,7 @@ namespace Math
 
 	float RAD2DEG(float rad);
 	float DEG2RAD(float deg);
+
+	sf::IntRect scaleRect(const sf::IntRect &pRect, float pFactor);
 }
 

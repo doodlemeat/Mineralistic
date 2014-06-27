@@ -23,3 +23,18 @@ sf::SoundBuffer &ResourceHolder::getSound(const std::string& pFilename)
 	return *m_cache.acquire(thor::Resources::fromFile<sf::SoundBuffer>(mSoundPath + pFilename));
 }
 
+const std::string & ResourceHolder::getTexturePath() const
+{
+	return mTexturePath;
+}
+
+const std::string & ResourceHolder::getFontPath() const
+{
+	return mFontPath;
+}
+
+const std::string & ResourceHolder::getSoundPath() const
+{
+	return mSoundPath;
+}
+

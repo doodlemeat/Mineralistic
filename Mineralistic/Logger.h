@@ -11,4 +11,5 @@ namespace Logger
 	void vector2(sf::Vector2u pVector);
 	void info(std::string pOut);
 	void rect(sf::FloatRect pbounds);
+	void rect(sf::IntRect pbounds);
 }

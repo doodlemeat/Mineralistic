@@ -5,7 +5,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include "noise/noise.h"
 #include "noiseutils.h"
-#include <mutex>
+#include "Thor/Particles/ParticleSystem.hpp"
+#include "Thor/Particles/Emitters.hpp"
 
 class Chunk;
 class ObjectManager;
@@ -53,7 +54,7 @@ public:
 		WEST
 	};
 
-	World(sf::Vector2i pChunkSize, sf::Vector2i pTileSize, sf::Texture pTileset, ObjectManager *pObjectManager, b2World *pB2World);
+	World(sf::Texture pTileset, ObjectManager *pObjectManager, b2World *pB2World);
 	~World();
 
 	void update(float dt);
@@ -65,8 +66,6 @@ public:
 
 	sf::Texture getTileset();
 	std::vector<Chunk*> getLoadedChunks();
-	sf::Vector2i getChunkSize();
-	sf::Vector2i getTileSize(); 
 	Material *getMaterial(std::string pName);
 
 	b2Body *createLine(sf::Vector2f from, sf::Vector2f to);
@@ -79,18 +78,18 @@ public:
 	Tile *getTileByWorldPosition(sf::Vector2f pPosition);
 	Tile *getClosestTileInDirection(sf::Vector2f pPosition, Direction direction, unsigned int length);
 	std::vector<Material*> getLumpables(float pHeightLimit);
+	thor::ParticleSystem *getBlockParticleSystem();
+	thor::UniversalEmitter &getBlockParticleEmitter();
 
 	const int & getSeed();
 	const int & getOctaveCount();
 	const int & getNoiseQuality();
 	const double & getFrequency();
 	void spawnMonsters();
-
+	std::vector<Material*> &getMaterialList();
 private:
-	sf::Vector2i mChunkTileSize; // in tiles
-	sf::Vector2i mTileSize; // in pixels
-	sf::Vector2i mChunkSize; // in pixels (mChunkTileSize * mTileSize)
 	std::vector<Chunk*> mChunks;
+	std::vector<Chunk*> mActiveChunks; 
 
 	std::vector<TileStop*> mTileStops;
 	std::vector<Material*> mMaterials; // Stores all materials
@@ -108,5 +107,7 @@ private:
 	noise::module::Perlin mNoiseModule;
 
 	thor::Timer* mMonsterSpawnerTimer;
+	thor::ParticleSystem *mBlockParticleSystem;
+	thor::UniversalEmitter mBlockParticleEmitter;
 };
 

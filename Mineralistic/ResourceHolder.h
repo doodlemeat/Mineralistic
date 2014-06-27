@@ -14,7 +14,9 @@ public:
 	sf::Texture& getTexture(const std::string& pFilename);
 	sf::Font& getFont(const std::string& pFilename);
 	sf::SoundBuffer& getSound(const std::string& pFilename);
-
+	const std::string & getTexturePath() const;
+	const std::string & getFontPath() const;
+	const std::string & getSoundPath() const;
 private:
 	std::string mTexturePath;
 	std::string mFontPath;

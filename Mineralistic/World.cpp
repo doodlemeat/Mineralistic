@@ -16,12 +16,12 @@
 #include "Thor/Time/Timer.hpp"
 #include "ObjectGroup.h"
 #include "Player.h"
+#include "Thor/Animation/FadeAnimation.hpp"
+#include "Thor/Particles/Affectors.hpp"
+#include "BreakAffector.h"
 
-World::World(sf::Vector2i pChunkSize, sf::Vector2i pTileSize, sf::Texture pTileset, ObjectManager *pObjectManager, b2World *pB2World)
+World::World(sf::Texture pTileset, ObjectManager *pObjectManager, b2World *pB2World)
 {
-	mTileSize = pTileSize;
-	mChunkTileSize = pChunkSize;
-	mChunkSize = sf::Vector2i(mTileSize.x * mChunkTileSize.x, mTileSize.y * mChunkTileSize.y);
 	mTileset = pTileset;
 	mObjectManager = pObjectManager;
 	mB2World = pB2World;
@@ -29,14 +29,24 @@ World::World(sf::Vector2i pChunkSize, sf::Vector2i pTileSize, sf::Texture pTiles
 	mMonsterSpawnerTimer->restart(sf::seconds(1));
 
 	seed = thor::random(INT_MIN, INT_MAX);
-	frequency = 0.2; // (double)thor::random(0.01f, 0.08f);
-	octaveCount = 1; // thor::random(1, noise::module::PERLIN_MAX_OCTAVE);
+	frequency = 0.2;
+	octaveCount = 1;
 	noise_quality = noise::QUALITY_FAST;
 
 	mNoiseModule.SetFrequency(frequency);
 	mNoiseModule.SetOctaveCount(octaveCount);
 	mNoiseModule.SetSeed(seed);
 	mNoiseModule.SetNoiseQuality((noise::NoiseQuality)noise_quality);
+
+	mBlockParticleSystem = new thor::ParticleSystem();
+
+	sf::Vector2f acceleration(0.f, 250.f);
+	mBlockParticleSystem->addAffector(thor::ForceAffector(acceleration));
+
+	mBlockParticleSystem->addAffector(BreakAffector(this));
+
+	thor::FadeAnimation fader(0, 0.15f);
+	mBlockParticleSystem->addAffector(thor::AnimationAffector(fader));
 }
 
 World::~World()
@@ -66,10 +76,14 @@ World::~World()
 	}
 
 	delete mMonsterSpawnerTimer;
+
+	delete mBlockParticleSystem;
 }
 
 void World::update(float dt)
 {
+	mBlockParticleSystem->update(sf::seconds(dt));
+
 	// Check if we can load more chunks
 	sf::Vector2f playerPosition = WorldHelper::toWorldPositionFromSFMLPosition(mObjectManager->getObject("Player")->getSprite()->getPosition());
 
@@ -158,12 +172,12 @@ Chunk *World::getChunkByWorldPosition(sf::Vector2f pPosition)
 
 Chunk *World::loadChunk(sf::Vector2i pPosition)
 {
-	sf::FloatRect bounds(WorldHelper::toWorldPositionFromChunkPosition(pPosition), sf::Vector2f((float)mChunkTileSize.x, (float)mChunkTileSize.y));
+	sf::FloatRect bounds(WorldHelper::toWorldPositionFromChunkPosition(pPosition), sf::Vector2f(8.f, 8.f));
 	noise::utils::NoiseMap heightMap;
 	noise::utils::NoiseMapBuilderPlane heightMapBuilder;
 	heightMapBuilder.SetSourceModule(mNoiseModule);
 	heightMapBuilder.SetDestNoiseMap(heightMap);
-	heightMapBuilder.SetDestSize(mChunkTileSize.x, mChunkTileSize.y);
+	heightMapBuilder.SetDestSize(8, 8);
 	heightMapBuilder.SetBounds(bounds.left, bounds.left + bounds.width - 1, bounds.top, bounds.top + bounds.height - 1);
 	heightMapBuilder.Build();
 
@@ -185,16 +199,6 @@ std::vector<Chunk*> World::getLoadedChunks()
 	return mChunks;
 }
 
-sf::Vector2i World::getChunkSize()
-{
-	return mChunkSize;
-}
-
-sf::Vector2i World::getTileSize()
-{
-	return mTileSize;
-}
-
 void World::addTileStop(std::string pName, float pHeightStop)
 {
 	Material *material = getMaterial(pName);
@@ -206,7 +210,6 @@ void World::addTileStop(std::string pName, float pHeightStop)
 	TileStop *tileStop = new TileStop(material);
 	tileStop->setHeightStop(pHeightStop);
 	mTileStops.push_back(tileStop);
-	std::cout << "Added tilestop at " << pHeightStop << " to material " << pName << std::endl;
 }
 
 TileStop *World::getTileStopAt(float pHeightValue)
@@ -489,6 +492,21 @@ void World::spawnMonsters()
 
 		mObjectManager->spawnMonster(chosenTile->getPosition());
 	}
+}
+
+thor::ParticleSystem *World::getBlockParticleSystem()
+{
+	return mBlockParticleSystem;
+}
+
+std::vector<Material*> &World::getMaterialList()
+{
+	return mMaterials;
+}
+
+thor::UniversalEmitter &World::getBlockParticleEmitter()
+{
+	return mBlockParticleEmitter;
 }
 
 namespace WorldHelper

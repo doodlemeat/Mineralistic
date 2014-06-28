@@ -412,7 +412,7 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 			current->getTorch()->lightsOff();
 			current->getTorch()->setDead(true);
 			current->setTorch(nullptr);
-			mObjectManager->getGroup("torches")->update(dt);
+			//mObjectManager->getGroup("torches")->update(dt);
 			mObjectManager->getAudioSystem()->playSound("Remove_Torch", false);
 		}
 		else

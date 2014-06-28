@@ -40,6 +40,7 @@ public:
 	b2World *getB2World();
 	sf::Vertex *getVertices(sf::Vector2f pWorldPosition);
 	Chunk *getRelative(sf::Vector2i pRelativePosition);
+	bool equalAtWorldPosition(sf::Vector2f pWorldPosition);
 
 private:
 	bool mActive;

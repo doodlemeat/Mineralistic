@@ -80,6 +80,7 @@ public:
 	std::vector<Material*> getLumpables(float pHeightLimit);
 	thor::ParticleSystem *getBlockParticleSystem();
 	thor::UniversalEmitter &getBlockParticleEmitter();
+	ObjectManager *getObjectManager() const;
 
 	const int & getSeed();
 	const int & getOctaveCount();
@@ -87,9 +88,9 @@ public:
 	const double & getFrequency();
 	void spawnMonsters();
 	std::vector<Material*> &getMaterialList();
+	bool isChunkLoadedHere(sf::Vector2f pWorldPosition);
 private:
 	std::vector<Chunk*> mChunks;
-	std::vector<Chunk*> mActiveChunks; 
 
 	std::vector<TileStop*> mTileStops;
 	std::vector<Material*> mMaterials; // Stores all materials

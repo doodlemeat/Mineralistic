@@ -4,14 +4,18 @@
 #include "Material.h"
 #include <iostream>
 #include "Logger.h"
+#include "Chunk.h"
+#include "GameObject.h"
+#include "ObjectManager.h"
+#include "World.h"
 
 
 Torch::Torch(int pWidth, int pHeight)
 {
+	mComplete = false;
 	mWidth = pWidth;
 	mHeight = pHeight;
 }
-
 
 Torch::~Torch()
 {
@@ -121,22 +125,22 @@ void Torch::processNeighbors(int pX, int pY, float pIntensity)
 	Tile *E = mTilesInRange[pY * mWidth + x_plus_1]; // East
 	Tile *S = mTilesInRange[y_plus_1 * mWidth + pX]; // South
 	Tile *W = mTilesInRange[pY * mWidth + x_min_1];  // West
-	if (N->getIntensity() <= newIntensity)
+	if (N != nullptr && N->getIntensity() <= newIntensity)
 	{
 			N->setLightIntensity(newIntensity);
 			processNeighbors(pX, y_min_1, newIntensity);
 	}
-	if (E->getIntensity() <= newIntensity)
+	if (E != nullptr && E->getIntensity() <= newIntensity)
 	{
 			E->setLightIntensity(newIntensity);
 			processNeighbors(x_plus_1, pY, newIntensity);
 	}
-	if (S->getIntensity() <= newIntensity)
+	if (S != nullptr && S->getIntensity() <= newIntensity)
 	{
 			S->setLightIntensity(newIntensity);
 			processNeighbors(pX, y_plus_1, newIntensity);
 	}
-	if (W->getIntensity() <= newIntensity)
+	if (W != nullptr && W->getIntensity() <= newIntensity)
 	{
 			W->setLightIntensity(newIntensity);
 			processNeighbors(x_min_1, pY, newIntensity);
@@ -169,27 +173,40 @@ void Torch::setTile(Tile *pTile)
 	}
 
 	// Gather affected tiles
-	int cx = mWidth >> 1;
-	int cy = mHeight >> 1;
-	int row = 0;
-	int column = 0;
-	for (int x = -cx; x < cx; x++)
-	{
-		row = 0;
-		for (int y = -cy; y < cy; y++)
-		{
-			Tile *tile = mTile->getRelative(x, y);
-			mTilesInRange[row * mWidth + column] = tile;
-			row++;
-		}
-		column++;
-	}
+	collectTiles();
 }
 
 void Torch::lightsOff()
 {
 	for (int i = 0; i < (mWidth * mHeight); i++)
 	{
-		mTilesInRange[i]->setLightIntensity(0);
+		if (mTilesInRange[i] != nullptr)
+		{
+			mTilesInRange[i]->setLightIntensity(0);
+		}
+	}
+}
+
+void Torch::collectTiles()
+{
+	int cx = mWidth >> 1;
+	int cy = mHeight >> 1;
+	int row = 0;
+	int column = 0;
+	Chunk *centerChunk = mTile->getChunk();
+
+	for (int x = -cx; x < cx; x++)
+	{
+		row = 0;
+		for (int y = -cy; y < cy; y++)
+		{
+			sf::Vector2f worldPos = mTile->getPosition() + sf::Vector2f(x, y);
+			
+			Tile *tile = mTile->getRelative(x, y);
+			mTilesInRange[row * mWidth + column] = tile;
+			
+			row++;
+		}
+		column++;
 	}
 }

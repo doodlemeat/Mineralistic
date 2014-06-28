@@ -86,7 +86,7 @@ void Tile::setMaterial(Material *pMaterial)
 void Tile::breakNaturally()
 {
 	if (!mMaterial->isCollidable()) return;
-
+	 
 	thor::UniversalEmitter emitter = mChunk->getWorld()->getBlockParticleEmitter();
 	emitter.setEmissionRate(60);
 	emitter.setParticleLifetime(sf::seconds(1.f)); 

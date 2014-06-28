@@ -509,6 +509,25 @@ thor::UniversalEmitter &World::getBlockParticleEmitter()
 	return mBlockParticleEmitter;
 }
 
+ObjectManager *World::getObjectManager() const
+{
+	return mObjectManager;
+}
+
+bool World::isChunkLoadedHere(sf::Vector2f pWorldPosition)
+{
+	sf::Vector2i chunkPosition = WorldHelper::toChunkPositionFromWorldPosition(pWorldPosition);
+	for (auto &chunk : mChunks)
+	{
+		if (chunk->isPosition(chunkPosition))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 namespace WorldHelper
 {
 	sf::Vector2f toWorldPositionFromSFMLPosition(sf::Vector2f pPosition)

@@ -354,7 +354,6 @@ void PlayState::setupPlayer()
 	mObjectManager->spawnTorch(tile->getRelative(2, 0)->getPosition());
 	mObjectManager->spawnTorch(tile->getRelative(0 , -2)->getPosition());
 	mObjectManager->spawnTorch(tile->getRelative(-2, 0)->getPosition());
-
 }
 
 void PlayState::registerMaterials()

@@ -16,7 +16,10 @@ public:
 	void setTile(Tile *pTile);
 	void lightsOff();
 	void smoothLight(int pX, int pY);
+	void collectTiles();
+
 private:
+	bool mComplete;
 	sf::Color lightColor;
 	int mWidth;
 	int mHeight;

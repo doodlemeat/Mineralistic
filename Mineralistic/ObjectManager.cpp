@@ -172,7 +172,6 @@ void ObjectManager::update(float dt, thor::ActionMap<std::string> *pActionMap)
 	getGroup("hooks")->update(dt);
 	getGroup("monsters")->update(dt);
 	getGroup("torches")->update(dt);
-
 }
 
 AudioSystem *ObjectManager::getAudioSystem()
@@ -304,7 +303,7 @@ void ObjectManager::spawnTorch(sf::Vector2f pWorldPosition)
 	torch->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
 	torch->getSprite()->setOrigin(32, 32);
 	torch->setGroup(getGroup("torches"));
-
+	torch->setManager(this);
 	Tile *tile = mWorld->getTileByWorldPosition(pWorldPosition);
 	tile->setTorch(torch);
 	torch->setTile(tile);

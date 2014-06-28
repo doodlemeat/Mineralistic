@@ -10,6 +10,8 @@
 #include "Box2D/Box2D.h"
 #include "Material.h"
 #include "Thor/Math/Random.hpp"
+#include "ObjectManager.h"
+#include "ObjectGroup.h"
 
 Chunk::Chunk(World *pWorld, b2World *pB2World)
 {
@@ -211,6 +213,19 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			}
 		}
 	}
+
+	// Try to spawn a torch
+	int rn = thor::random(1, 10);
+	if (rn <= 3)
+	{
+		int randomX = thor::random(0, 7);
+		int randomY = thor::random(0, 7);
+		Tile *randomTile = mTiles[randomX][randomY];
+		if (!randomTile->getMaterial()->isCollidable())
+		{
+			//mWorld->getObjectManager()->spawnTorch(randomTile->getPosition());
+		}
+	}
 }
 
 void Chunk::setTexture(sf::Texture *pTexture)
@@ -259,4 +274,14 @@ Chunk *Chunk::getRelative(sf::Vector2i pRelativePosition)
 {
 	sf::Vector2i newChunkPosition = mPosition + pRelativePosition;
 	return mWorld->getChunkByChunkPosition(newChunkPosition);
+}
+
+bool Chunk::equalAtWorldPosition(sf::Vector2f pWorldPosition)
+{
+	sf::Vector2i chunkPos = WorldHelper::toChunkPositionFromWorldPosition(pWorldPosition);
+	if (chunkPos != mPosition)
+	{
+		return false;
+	}
+	return true;
 }

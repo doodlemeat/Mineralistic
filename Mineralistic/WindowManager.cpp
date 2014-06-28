@@ -12,6 +12,7 @@ WindowManager::WindowManager(std::string pTitle, sf::Vector2i pWindowSize)
 	mWindow = new sf::RenderWindow(sf::VideoMode(pWindowSize.x, pWindowSize.y), pTitle, sf::Style::None);
 	mWindow->setVerticalSyncEnabled(true);
 	mWindow->setKeyRepeatEnabled(false);
+	mWindow->setMouseCursorVisible(false);
 }
 
 WindowManager::~WindowManager()

@@ -45,6 +45,7 @@ public:
 	void setWorld(World *pWorld);
 	void spawnMonster(sf::Vector2f pWorldPosition);
 	void spawnTorch(sf::Vector2f pWorldPosition);
+	void orderGameObjects();
 private:
 	std::vector<ObjectGroup*> mObjectGroups;
 	std::vector<GameObject*> mGameObjects;

@@ -85,6 +85,8 @@ void PlayState::entering()
 	registerMaterials();
 	setupPlayer();
 	setupHouse();
+
+	mObjectManager->getObject("Player")->setZOrder(10);
 }
 
 void PlayState::leaving()
@@ -221,6 +223,7 @@ void PlayState::setupActions()
 void PlayState::setupPlayer()
 {
 	Player *playerObject = new Player();
+	playerObject->setManager(mObjectManager);
 	mObjectManager->addObject(playerObject);
 
 	sf::Sprite *currentTileMarkup = new sf::Sprite();

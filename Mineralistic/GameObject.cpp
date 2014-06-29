@@ -6,6 +6,7 @@
 #include "World.h"
 #include "Box2D\Box2D.h"
 #include "PhysicsScale.h"
+#include "ObjectManager.h"
 
 GameObject::GameObject()
 {
@@ -40,6 +41,7 @@ GameObject::~GameObject()
 
 void GameObject::construct()
 {
+	mZOrder = 0;
 	mDead = false;
 	mGroup = nullptr;
 	mNameIsSet = false;
@@ -141,4 +143,15 @@ void GameObject::teleport(int x, int y)
 	sf::Vector2f SFMLPosition = WorldHelper::toSFMLPositionFromWorldPosition(sf::Vector2f(x, y), true);
 	mBody->SetTransform(PhysicsScale::gameToPhys(SFMLPosition), 0);
 	mSprite->setPosition(SFMLPosition);
+}
+
+void GameObject::setZOrder(int pValue)
+{
+	mZOrder = pValue;
+	mObjectManager->orderGameObjects();
+}
+
+int GameObject::getZOrder()
+{
+	return mZOrder;
 }

@@ -23,6 +23,9 @@ public:
 	void setBody(b2Body *pBody);
 	void setManager(ObjectManager *pObjectManager);
 	void setGroup(ObjectGroup *pObjectGroup);
+	void setDead(bool pValue);
+	void setZOrder(int pValue);
+	void setName(std::string pName);
 	void addAnimation(std::string pName, thor::FrameAnimation *pAnimation, sf::Time pTime);
 
 	virtual void update(float dt);
@@ -31,11 +34,11 @@ public:
 	
 	bool isName(std::string pName);
 	bool hasName();
-	void setName(std::string pName);
-	std::string getName();
-
-	void setDead(bool pValue);
 	bool isDead();
+
+	int getZOrder();
+
+	std::string getName();
 
 	b2Body *getBody();
 	sf::Sprite *getSprite();

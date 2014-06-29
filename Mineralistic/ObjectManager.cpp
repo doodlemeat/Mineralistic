@@ -310,3 +310,12 @@ void ObjectManager::spawnTorch(sf::Vector2f pWorldPosition)
 
 	getGroup("torches")->addGameObject(torch);
 }
+
+void ObjectManager::orderGameObjects()
+{
+	std::sort(mGameObjects.begin(), mGameObjects.end(), 
+		[](GameObject *a, GameObject *b) -> bool
+	{
+		return a->getZOrder() < b->getZOrder();
+	});
+}

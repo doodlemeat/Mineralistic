@@ -15,7 +15,7 @@
 
 Chunk::Chunk(World *pWorld, b2World *pB2World)
 {
-	mActive = true;
+	mDrawLight = false;
 	mWorld = pWorld;
 	mB2World = pB2World;
 
@@ -62,7 +62,14 @@ void Chunk::setPosition(sf::Vector2i pPosition)
 void Chunk::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	states.texture = &mTexture;
-	target.draw(mVertices, states);
+	if (mDrawLight)
+	{
+		target.draw(mLightVertices, states);
+	}
+	else
+	{
+		target.draw(mVertices, states);
+	}
 }
 
 void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
@@ -70,6 +77,9 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 	// Set vertices type and size
 	mVertices.setPrimitiveType(sf::Quads);
 	mVertices.resize(8 * 8 * 4);
+
+	mLightVertices.setPrimitiveType(sf::Quads);
+	mLightVertices.resize(8 * 8 * 4);
 
 	// Get the offset position of all tiles position
 	sf::Vector2f offsetPositon = sf::Vector2f(mPosition);
@@ -87,14 +97,6 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			float heightValue = pHeightMap->GetValue(x, y);
 			if (heightValue > 1.f) heightValue = 1.f;
 			if (heightValue < -1.f) heightValue = -1.f;
-
-			// Get a pointer to the current tile's quad
-			sf::Vertex *quad = &mVertices[(x + y * pHeightMap->GetWidth()) * 4];
-
-			quad[0].position = sf::Vector2f(offsetPositon.x + x * 64, offsetPositon.y + y * 64);
-			quad[1].position = sf::Vector2f(offsetPositon.x + (x + 1) * 64, offsetPositon.y + y * 64);
-			quad[2].position = sf::Vector2f(offsetPositon.x + (x + 1) * 64, offsetPositon.y + (y + 1) * 64);
-			quad[3].position = sf::Vector2f(offsetPositon.x + x * 64, offsetPositon.y + (y + 1) * 64);
 
 			Material *material = nullptr;
 			if (worldPosition.y <= -5)
@@ -115,16 +117,19 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			}
 			sf::FloatRect textureRect = static_cast<sf::FloatRect>(material->getTextureRect());
 
+			// Get a pointer to the current tile's quad
+			sf::Vertex *quad = &mVertices[(x + y * pHeightMap->GetWidth()) * 4];
+			
+			quad[0].position = sf::Vector2f(offsetPositon.x + x * 64, offsetPositon.y + y * 64);
+			quad[1].position = sf::Vector2f(offsetPositon.x + (x + 1) * 64, offsetPositon.y + y * 64);
+			quad[2].position = sf::Vector2f(offsetPositon.x + (x + 1) * 64, offsetPositon.y + (y + 1) * 64);
+			quad[3].position = sf::Vector2f(offsetPositon.x + x * 64, offsetPositon.y + (y + 1) * 64);
+
 			// define its 4 texture coordinates
 			quad[0].texCoords = sf::Vector2f(textureRect.left, textureRect.top) + sf::Vector2f(0.5f, 0.5f);
 			quad[1].texCoords = sf::Vector2f(textureRect.left + textureRect.width, textureRect.top) + sf::Vector2f(-0.5f, 0.5f);
 			quad[2].texCoords = sf::Vector2f(textureRect.left + textureRect.width, textureRect.top + textureRect.height) + sf::Vector2f(-0.5f, -0.5f);
 			quad[3].texCoords = sf::Vector2f(textureRect.left, textureRect.top + textureRect.height) + sf::Vector2f(0.5f, -0.5f);
-
-			quad[0].color = sf::Color(255, 255, 255, 100);
-			quad[1].color = sf::Color(255, 255, 255, 100);
-			quad[2].color = sf::Color(255, 255, 255, 100);
-			quad[3].color = sf::Color(255, 255, 255, 100);
 
 			// create a physics body
 			b2Body *body = nullptr;
@@ -138,8 +143,16 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 				body = mWorld->createChain(vertices, 4);
 			}
 
+			sf::Vertex *lightQuad = &mLightVertices[(x + y * pHeightMap->GetWidth()) * 4];
+
+			lightQuad[0].position = quad[0].position;
+			lightQuad[1].position = quad[1].position;
+			lightQuad[2].position = quad[2].position;
+			lightQuad[3].position = quad[3].position;
+
 			// Instantiate a new Tile object with the noise value, this doesn't do anything yet..
-			mTiles[x][y] = new Tile(this, worldPosition, material, body, quad);
+			mTiles[x][y] = new Tile(this, worldPosition, material, body, quad, lightQuad);
+			mTiles[x][y]->setLightIntensity(0);
 		}
 	}
 	
@@ -213,19 +226,6 @@ void Chunk::buildChunk(noise::utils::NoiseMap *pHeightMap)
 			}
 		}
 	}
-
-	// Try to spawn a torch
-	int rn = thor::random(1, 10);
-	if (rn <= 3)
-	{
-		int randomX = thor::random(0, 7);
-		int randomY = thor::random(0, 7);
-		Tile *randomTile = mTiles[randomX][randomY];
-		if (!randomTile->getMaterial()->isCollidable())
-		{
-			//mWorld->getObjectManager()->spawnTorch(randomTile->getPosition());
-		}
-	}
 }
 
 void Chunk::setTexture(sf::Texture *pTexture)
@@ -284,4 +284,14 @@ bool Chunk::equalAtWorldPosition(sf::Vector2f pWorldPosition)
 		return false;
 	}
 	return true;
+}
+
+bool Chunk::isDrawLight()
+{
+	return mDrawLight;
+}
+
+void Chunk::setDrawLight(bool pValue)
+{
+	mDrawLight = pValue;
 }

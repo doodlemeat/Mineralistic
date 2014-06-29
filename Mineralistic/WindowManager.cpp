@@ -28,7 +28,6 @@ sf::RenderWindow *WindowManager::getWindow()
 
 void WindowManager::drawObjectManager(ObjectManager *pObjectManager)
 {
-	// TODO: z-order
 	for (auto &group : pObjectManager->getGroups())
 	{
 		std::vector<GameObject*> *objects = group->getObjects();
@@ -49,5 +48,15 @@ void WindowManager::drawWorld(World *pWorld)
 	for (auto &chunk : pWorld->getLoadedChunks())
 	{
 		mWindow->draw(*chunk);
+	}
+}
+
+void WindowManager::drawWorldLightOverlay(World *pWorld)
+{
+	for (auto &chunk : pWorld->getLoadedChunks())
+	{
+		chunk->setDrawLight(true);
+		mWindow->draw(*chunk);
+		chunk->setDrawLight(false);
 	}
 }

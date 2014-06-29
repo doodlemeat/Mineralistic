@@ -16,7 +16,7 @@ namespace sf
 class Tile
 {
 public:
-	Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad);
+	Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad, sf::Vertex *pLightQuad);
 	~Tile();
 	sf::Vector2f getPosition();
 	Material *getMaterial();
@@ -33,6 +33,7 @@ public:
 	void setTorch(Torch *pTorch);
 	float getIntensity();
 	sf::Vertex* getQuad() const;
+	sf::Vertex* getLightQuad() const;
 private:
 	float mIntensity;
 	sf::Vector2f mPosition;
@@ -40,6 +41,7 @@ private:
 	Material *mMaterial;
 	b2Body *mBody;
 	sf::Vertex *mQuad;
+	sf::Vertex *mLightQuad;
 	Torch *mTorch;
 };
 

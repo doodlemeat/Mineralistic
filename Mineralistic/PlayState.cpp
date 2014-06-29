@@ -24,6 +24,9 @@
 #include "Logger.h"
 #include <string>
 #include "Math.h"
+#include "House.h"
+#include "Chimney.h"
+#include "Thor/Math/Random.hpp"
 
 PlayState::PlayState()
 {
@@ -81,6 +84,7 @@ void PlayState::entering()
 	
 	registerMaterials();
 	setupPlayer();
+	setupHouse();
 }
 
 void PlayState::leaving()
@@ -190,6 +194,7 @@ void PlayState::draw()
 	mAssets->windowManager->drawWorld(mWorld);
 	mAssets->windowManager->drawObjectManager(mObjectManager);
 	mAssets->windowManager->getWindow()->draw(*mWorld->getBlockParticleSystem());
+	mAssets->windowManager->drawWorldLightOverlay(mWorld);
 	mAssets->windowManager->getWindow()->setView(mAssets->windowManager->getWindow()->getDefaultView());
 
 	if (mDebugToggled)
@@ -531,4 +536,38 @@ void PlayState::registerMaterials()
 		unsigned int index = pSystem->addTextureRect(Math::scaleRect(material->getTextureRect(), 0.25));
 		material->setParticleRectIndex((int)index);
 	}
+}
+
+void PlayState::setupHouse()
+{
+	House *house = new House();
+	house->setName("House");
+	house->setManager(mObjectManager);
+	mObjectManager->addObject(house);
+
+	house->getSprite()->setTexture(mAssets->resourceHolder->getTexture("house.png"));
+
+	// Player tile
+	Player *player = static_cast<Player*>(mObjectManager->getObject("Player"));
+	Tile *tile = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(player->getSprite()->getPosition()))->getRelative(6, 0);
+	sf::Vector2f housePositionWorldPos;
+	housePositionWorldPos.x = tile->getPosition().x;
+	housePositionWorldPos.y = tile->getPosition().y;
+	house->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(housePositionWorldPos));
+
+	sf::Vector2f worldPosition = tile->getRelative(-1, 1)->getPosition();
+	mObjectManager->spawnTorch(worldPosition);
+	worldPosition = tile->getRelative(4, 1)->getPosition();
+	mObjectManager->spawnTorch(worldPosition);
+
+	// Chimney
+	Chimney *chimney = new Chimney();
+	chimney->getSprite()->setTexture(mAssets->resourceHolder->getTexture("chimney.png"));
+	chimney->getSprite()->setOrigin(chimney->getSprite()->getGlobalBounds().width / 2.f, chimney->getSprite()->getGlobalBounds().height);
+	sf::Vector2f SFMLPos = WorldHelper::toSFMLPositionFromWorldPosition(tile->getRelative(1, 0)->getPosition(), false);
+	chimney->getSprite()->setPosition(SFMLPos);
+	chimney->setName("Chimney");
+	mObjectManager->addObject(chimney);
+	house->setChimney(chimney);
+
 }

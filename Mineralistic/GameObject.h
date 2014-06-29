@@ -44,11 +44,14 @@ public:
 
 protected:
 	bool mNameIsSet;
+	bool mDead;
+
+	int mZOrder;
+
 	std::string mName;
 	ObjectManager *mObjectManager;
 	ObjectGroup *mGroup;
 	b2Body *mBody;
-	bool mDead;
 
 	sf::Sprite *mSprite;
 	thor::Animator<sf::Sprite, std::string> *mAnimator;

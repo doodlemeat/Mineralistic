@@ -25,9 +25,12 @@ public:
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 
 	bool isPosition(sf::Vector2i pPosition);
+	bool isDrawLight();
 	void setPosition(sf::Vector2i pPosition);
 	void setTexture(sf::Texture *pTexture);
 	void buildChunk(noise::utils::NoiseMap *pHeightMap);
+	void setDrawLight(bool pValue);
+
 	sf::Vector2i getPosition();
 
 	// Global chunk position
@@ -43,7 +46,7 @@ public:
 	bool equalAtWorldPosition(sf::Vector2f pWorldPosition);
 
 private:
-	bool mActive;
+	bool mDrawLight;
 	World* mWorld;
 	b2World *mB2World;
 	sf::Vector2i mPosition;
@@ -51,5 +54,6 @@ private:
 
 	sf::Texture mTexture;
 	sf::VertexArray mVertices;
+	sf::VertexArray mLightVertices;
 };
 

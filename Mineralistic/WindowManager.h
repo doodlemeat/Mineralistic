@@ -20,6 +20,7 @@ public:
 	sf::RenderWindow *getWindow();
 	void drawObjectManager(ObjectManager *pObjectManager);
 	void drawWorld(World *pWorld);
+	void drawWorldLightOverlay(World *pWorld);
 private:
 	sf::RenderWindow *mWindow;
 };

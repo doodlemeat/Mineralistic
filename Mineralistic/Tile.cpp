@@ -12,13 +12,14 @@
 #include "Thor/Particles/Affectors.hpp"
 #include "BreakAffector.h"
 
-Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad)
+Tile::Tile(Chunk *pChunk, sf::Vector2f pPosition, Material *pMaterial, b2Body *pBody, sf::Vertex *pQuad, sf::Vertex *pLightQuad)
 {
 	mChunk = pChunk;
 	mMaterial = pMaterial;
 	mBody = pBody;
 	mPosition = pPosition;
 	mQuad = pQuad;
+	mLightQuad = pLightQuad;
 	mTorch = nullptr;
 	mIntensity = 0;
 }
@@ -136,11 +137,14 @@ Chunk * Tile::getChunk()
 void Tile::setLightIntensity(float pIntensity)
 {
 	mIntensity = pIntensity;
-	int alpha = Math::relativeFromInterval(100, 255, 0, 7, mIntensity);
-	mQuad[0].color.a = alpha;
-	mQuad[1].color.a = alpha;
-	mQuad[2].color.a = alpha;
-	mQuad[3].color.a = alpha;
+
+	int alpha = Math::relativeFromInterval(0, 155, 0, 7, 7 - mIntensity);
+	sf::Color baseLightColor = sf::Color::Black;
+	baseLightColor.a = alpha;
+	mLightQuad[0].color = baseLightColor;
+	mLightQuad[1].color = baseLightColor;
+	mLightQuad[2].color = baseLightColor;
+	mLightQuad[3].color = baseLightColor;
 }
 
 float Tile::getIntensity()
@@ -161,4 +165,9 @@ Torch *Tile::getTorch()
 sf::Vertex* Tile::getQuad() const
 {
 	return mQuad;
+}
+
+sf::Vertex* Tile::getLightQuad() const
+{
+	return mLightQuad;
 }

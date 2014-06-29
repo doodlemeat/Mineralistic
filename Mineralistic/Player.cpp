@@ -422,13 +422,6 @@ void Player::update(float dt, thor::ActionMap<std::string> *pActionMap)
 		}
 	}
 
-	Tile *current = mWorld->getTileByWorldPosition(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition()));
-	sf::Color color = mSprite->getColor();
-	color.r = current->getQuad()[0].color.a;
-	color.g = current->getQuad()[0].color.a;
-	color.b = current->getQuad()[0].color.a;
-	mSprite->setColor(color);
-
 	mView->setCenter(mSprite->getPosition());
 }
 

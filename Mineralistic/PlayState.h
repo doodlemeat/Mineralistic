@@ -28,7 +28,7 @@ public:
 
 	void setupPlayer();
 	void registerMaterials();
-
+	void setupHouse();
 private:
 	bool mDebugToggled;
 

@@ -88,9 +88,11 @@
     <ClCompile Include="B2ContactListener.cpp" />
     <ClCompile Include="Box2DWorldDraw.cpp" />
     <ClCompile Include="BreakAffector.cpp" />
+    <ClCompile Include="Chimney.cpp" />
     <ClCompile Include="Chunk.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Hook.cpp" />
+    <ClCompile Include="House.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Math.cpp" />
@@ -122,6 +124,7 @@
     <ClInclude Include="B2ContactListener.h" />
     <ClInclude Include="Box2DWorldDraw.h" />
     <ClInclude Include="BreakAffector.h" />
+    <ClInclude Include="Chimney.h" />
     <ClInclude Include="Chunk.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="GameEngine.h" />
@@ -129,6 +132,7 @@
     <ClInclude Include="GameState.h" />
     <ClInclude Include="GameStateAsset.h" />
     <ClInclude Include="Hook.h" />
+    <ClInclude Include="House.h" />
     <ClInclude Include="IntroState.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="Material.h" />

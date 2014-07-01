@@ -437,7 +437,7 @@ const double & World::getFrequency()
 
 void World::spawnMonsters()
 {
-	if (mObjectManager->getGroup("monsters")->getObjects()->size() == 0) return;
+	if (mObjectManager->getGroup("monsters")->getObjects()->size() == 10) return;
 	if (mMonsterSpawnerTimer->isExpired())
 	{
 		std::cout << "Spawning a monster" << std::endl;

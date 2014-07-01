@@ -14,5 +14,7 @@ public:
 	bool update(float dt);
 	void draw();
 	void setupActions();
+
+private:
 };
 

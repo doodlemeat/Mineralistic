@@ -125,25 +125,50 @@ void Torch::processNeighbors(int pX, int pY, float pIntensity)
 	Tile *E = mTilesInRange[pY * mWidth + x_plus_1]; // East
 	Tile *S = mTilesInRange[y_plus_1 * mWidth + pX]; // South
 	Tile *W = mTilesInRange[pY * mWidth + x_min_1];  // West
-	if (N != nullptr && N->getIntensity() <= newIntensity)
+
+	int northIntensity = newIntensity;
+	if (N->getMaterial()->isCollidable())
 	{
-			N->setLightIntensity(newIntensity);
-			processNeighbors(pX, y_min_1, newIntensity);
+		northIntensity -= 1;
 	}
-	if (E != nullptr && E->getIntensity() <= newIntensity)
+	if (N != nullptr && N->getIntensity() <= northIntensity)
 	{
-			E->setLightIntensity(newIntensity);
-			processNeighbors(x_plus_1, pY, newIntensity);
+		N->setLightIntensity(northIntensity);
+		processNeighbors(pX, y_min_1, northIntensity);
 	}
-	if (S != nullptr && S->getIntensity() <= newIntensity)
+
+	int eastIntensity = newIntensity;
+	if (E->getMaterial()->isCollidable())
 	{
-			S->setLightIntensity(newIntensity);
-			processNeighbors(pX, y_plus_1, newIntensity);
+		eastIntensity -= 1;
 	}
-	if (W != nullptr && W->getIntensity() <= newIntensity)
+	if (E != nullptr && E->getIntensity() <= eastIntensity)
 	{
-			W->setLightIntensity(newIntensity);
-			processNeighbors(x_min_1, pY, newIntensity);
+		E->setLightIntensity(eastIntensity);
+		processNeighbors(x_plus_1, pY, eastIntensity);
+	}
+
+	int southIntensity = newIntensity;
+	if (S->getMaterial()->isCollidable())
+	{
+		southIntensity -= 1;
+	}
+	if (S != nullptr && S->getIntensity() <= southIntensity)
+	{
+		S->setLightIntensity(southIntensity);
+		processNeighbors(pX, y_plus_1, southIntensity);
+	}
+
+
+	int westIntensity = newIntensity;
+	if (W->getMaterial()->isCollidable())
+	{
+		westIntensity -= 1;
+	}
+	if (W != nullptr && W->getIntensity() <= westIntensity)
+	{
+		W->setLightIntensity(westIntensity);
+		processNeighbors(x_min_1, pY, westIntensity);
 	}
 }
 

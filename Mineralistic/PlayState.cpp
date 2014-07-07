@@ -129,14 +129,16 @@ bool PlayState::update(float dt)
 	{
 		mDebugToggled = !mDebugToggled;
 	}
+
+	Player* player = static_cast<Player*>(mObjectManager->getObject("Player"));
+
+	sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromSFMLPosition(player->getSprite()->getPosition());
+	sf::Vector2i chunkPosition = WorldHelper::toChunkPositionFromWorldPosition(worldPosition);
+
+	Chunk *playerChunk = mWorld->getChunkByWorldPosition(worldPosition);
+
 	if (mDebugToggled)
 	{
-		Player* player = static_cast<Player*>(mObjectManager->getObject("Player"));
-
-		sf::Vector2f worldPosition = WorldHelper::toWorldPositionFromSFMLPosition(player->getSprite()->getPosition());
-		sf::Vector2i chunkPosition = WorldHelper::toChunkPositionFromWorldPosition(worldPosition);
-
-
 		std::string output = "";
 		output += "v" + Config::MAJOR + "." + Config::MINOR + "\n";
 		output += "x: " + std::to_string(worldPosition.x) + " c: " + std::to_string(chunkPosition.x) + "\n";

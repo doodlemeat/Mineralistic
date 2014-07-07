@@ -27,6 +27,7 @@ namespace WorldHelper
 	sf::Vector2i toChunkPositionFromWorldPosition(sf::Vector2f pPosition);
 	sf::Vector2i toLocalTilePositionFromWorldPosition(sf::Vector2f pPosition);
 	sf::Vector2f clampTilePosition(sf::Vector2f pPosition);
+	float worldDistanceBetweenSFMLPos(const sf::Vector2f &p1, const sf::Vector2f &p2);
 }
 
 namespace thor

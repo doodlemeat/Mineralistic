@@ -26,10 +26,13 @@ public:
 
 	bool isPosition(sf::Vector2i pPosition);
 	bool isDrawLight();
+	bool isHighlight();
+
 	void setPosition(sf::Vector2i pPosition);
 	void setTexture(sf::Texture *pTexture);
 	void buildChunk(noise::utils::NoiseMap *pHeightMap);
 	void setDrawLight(bool pValue);
+	void setHighlight(bool pValue);
 
 	sf::Vector2i getPosition();
 
@@ -55,5 +58,6 @@ private:
 	sf::Texture mTexture;
 	sf::VertexArray mVertices;
 	sf::VertexArray mLightVertices;
+	bool mHighlight;
 };
 

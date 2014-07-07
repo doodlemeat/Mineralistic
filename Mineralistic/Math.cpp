@@ -80,6 +80,19 @@ namespace Math
 		return scaledRect;
 	}
 
+	sf::Vector2f midPoint(const sf::Vector2f &p1, const sf::Vector2f &p2)
+	{
+		return sf::Vector2f((p1.x + p2.x) / 2.f, (p1.y + p2.y) / 2.f);
+	}
+	sf::Vector2f midPoint(const sf::Vector2i &p1, const sf::Vector2i &p2)
+	{
+		return midPoint(sf::Vector2f(p1), sf::Vector2f(p2));
+	}
+
+	sf::IntRect getRectByMidPoint(const sf::Vector2f &pMidPoint, int pWidth, int pHeight)
+	{
+		return sf::IntRect((int)(pMidPoint.x - (float)pWidth / 2.f), (int)(pMidPoint.y - (float)pHeight / 2.f), pWidth, pHeight);
+	}
 }
 
 

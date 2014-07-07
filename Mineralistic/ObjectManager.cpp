@@ -253,27 +253,38 @@ World *ObjectManager::getWorld()
 void ObjectManager::spawnMonster(sf::Vector2f pWorldPosition)
 {
 	Monster *monster = new Monster();
+	monster->setManager(this);
+
+	// Initialize the monsters pathfinder object
+	monster->initPathfinder();
+
 	monster->getSprite()->setTexture(mResourceHolder->getTexture("mumba.png"));
 	monster->getSprite()->setPosition(WorldHelper::toSFMLPositionFromWorldPosition(pWorldPosition, true));
 	monster->getSprite()->setOrigin(32, 32);
 	monster->setGroup(getGroup("monsters"));
 
+	// Define walk left animation
 	thor::FrameAnimation *walkLeft = new thor::FrameAnimation();
 	walkLeft->addFrame(1.f, sf::IntRect(0, 0, 64, 64));
 	walkLeft->addFrame(1.f, sf::IntRect(64, 0, 64, 64));
 	walkLeft->addFrame(1.f, sf::IntRect(128, 0, 64, 64));
 	walkLeft->addFrame(1.f, sf::IntRect(192, 0, 64, 64));
 
+	// Same for walk right
 	thor::FrameAnimation *walkRight = new thor::FrameAnimation();
 	walkRight->addFrame(1.f, sf::IntRect(0, 64, 64, 64));
 	walkRight->addFrame(1.f, sf::IntRect(64, 64, 64, 64));
 	walkRight->addFrame(1.f, sf::IntRect(128, 64, 64, 64));
 	walkRight->addFrame(1.f, sf::IntRect(192, 64, 64, 64));
 
+	// And register the animations
 	monster->addAnimation("Walk_Left", walkLeft, sf::seconds(0.3f));
 	monster->addAnimation("Walk_Right", walkRight, sf::seconds(0.3f));
+
+	// Play the walk left animation as idle
 	monster->getAnimator()->playAnimation("Walk_Left", true);
 
+	// Create a body for the monsters
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
 	b2Vec2 pos = PhysicsScale::gameToPhys(monster->getSprite()->getPosition());

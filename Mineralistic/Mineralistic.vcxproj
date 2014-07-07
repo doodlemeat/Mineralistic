@@ -86,6 +86,7 @@
     <ClCompile Include="Angle.cpp" />
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="B2ContactListener.cpp" />
+    <ClCompile Include="BinaryHeap.cpp" />
     <ClCompile Include="Box2DWorldDraw.cpp" />
     <ClCompile Include="BreakAffector.cpp" />
     <ClCompile Include="Chimney.cpp" />
@@ -97,7 +98,9 @@
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="Monster.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="noiseutils.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
     <ClCompile Include="PhysicsHelper.cpp" />
     <ClCompile Include="PhysicsScale.cpp" />
     <ClCompile Include="Tile.cpp" />
@@ -122,6 +125,7 @@
     <ClInclude Include="Angle.h" />
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="B2ContactListener.h" />
+    <ClInclude Include="BinaryHeap.h" />
     <ClInclude Include="Box2DWorldDraw.h" />
     <ClInclude Include="BreakAffector.h" />
     <ClInclude Include="Chimney.h" />
@@ -139,9 +143,11 @@
     <ClInclude Include="Math.h" />
     <ClInclude Include="MenuState.h" />
     <ClInclude Include="Monster.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="noiseutils.h" />
     <ClInclude Include="ObjectGroup.h" />
     <ClInclude Include="ObjectManager.h" />
+    <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="PhysicsHelper.h" />
     <ClInclude Include="PhysicsScale.h" />
     <ClInclude Include="Player.h" />

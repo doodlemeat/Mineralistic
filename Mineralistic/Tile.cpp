@@ -138,7 +138,7 @@ void Tile::setLightIntensity(float pIntensity)
 {
 	mIntensity = pIntensity;
 
-	int alpha = Math::relativeFromInterval(0, 155, 0, 7, 7 - mIntensity);
+	int alpha = (int)Math::relativeFromInterval(0.f, 155.f, 0.f, 7.f, 7.f - mIntensity);
 	sf::Color baseLightColor = sf::Color::Black;
 	baseLightColor.a = alpha;
 	mLightQuad[0].color = baseLightColor;

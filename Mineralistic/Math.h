@@ -31,5 +31,10 @@ namespace Math
 	float DEG2RAD(float deg);
 
 	sf::IntRect scaleRect(const sf::IntRect &pRect, float pFactor);
+
+	sf::Vector2f midPoint(const sf::Vector2f &p1, const sf::Vector2f &p2);
+	sf::Vector2f midPoint(const sf::Vector2i &p1, const sf::Vector2i &p2);
+
+	sf::IntRect getRectByMidPoint(const sf::Vector2f &pMidPoint, int pWidth, int pHeight);
 }
 

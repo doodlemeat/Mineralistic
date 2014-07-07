@@ -437,21 +437,22 @@ const double & World::getFrequency()
 
 void World::spawnMonsters()
 {
-	if (mObjectManager->getGroup("monsters")->getObjects()->size() == 10) return;
+	if (mObjectManager->getGroup("monsters")->getObjects()->size() == 1) return;
 	if (mMonsterSpawnerTimer->isExpired())
 	{
 		std::cout << "Spawning a monster" << std::endl;
+
 		// Try to spawn a monster
 		Player *player = static_cast<Player*>(mObjectManager->getObject("Player"));
 
 		sf::Vector2f playerPosition = WorldHelper::toWorldPositionFromSFMLPosition(mObjectManager->getObject("Player")->getSprite()->getPosition());
 		Chunk *playerChunk = getChunkByWorldPosition(playerPosition);
-
-		sf::Vector2i avaibleChunkPositions[64];
+		playerChunk->setHighlight(true);
+		sf::Vector2i avaibleChunkPositions[200];
 		int size = 0;
 
-		int threshhold = 3;
-		int minDist = 2;
+		int threshhold = 2;
+		int minDist = 0;
 
 		for (int x = -threshhold; x <= threshhold; x++)
 		{
@@ -459,6 +460,9 @@ void World::spawnMonsters()
 			{
 				if ((x < -minDist || x > minDist) || (y < -minDist || y > minDist))
 				{
+					Chunk *c = playerChunk->getRelative(sf::Vector2i(x, y));
+					c->setHighlight(true);
+					Logger::vector2(sf::Vector2i(x, y));
 					avaibleChunkPositions[size] = sf::Vector2i(x, y);
 					size++;
 				}
@@ -467,7 +471,7 @@ void World::spawnMonsters()
 
 		int randomChunkPositionIndex = thor::random(0, size);
 		Chunk *chunk = playerChunk->getRelative(avaibleChunkPositions[randomChunkPositionIndex]);
-		Logger::vector2(avaibleChunkPositions[randomChunkPositionIndex]);
+		Logger::info("Chosen: ");
 		Logger::vector2(chunk->getPosition());
 
 		Tile* avaibleTiles[64];
@@ -486,10 +490,12 @@ void World::spawnMonsters()
 		}
 		
 		mMonsterSpawnerTimer->restart(sf::seconds(1));
-		if (size == 0) return;
-
+		if (size == 0) 
+		{
+			std::cout << "No tile was found. Skipping monster spawn." << std::endl;
+			return;
+		}
 		Tile *chosenTile = avaibleTiles[thor::random(0, size - 1)];
-
 		mObjectManager->spawnMonster(chosenTile->getPosition());
 	}
 }
@@ -589,5 +595,10 @@ namespace WorldHelper
 			SFMLPosition.y += tile_size / 2.f;
 		}
 		return SFMLPosition;
+	}
+
+	float worldDistanceBetweenSFMLPos(const sf::Vector2f &p1, const sf::Vector2f &p2)
+	{
+		return Math::euclideanDistance(toWorldPositionFromSFMLPosition(p1), toWorldPositionFromSFMLPosition(p2));
 	}
 }

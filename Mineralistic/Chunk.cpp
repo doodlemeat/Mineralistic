@@ -15,6 +15,7 @@
 
 Chunk::Chunk(World *pWorld, b2World *pB2World)
 {
+	mHighlight = false;
 	mDrawLight = false;
 	mWorld = pWorld;
 	mB2World = pB2World;
@@ -69,6 +70,17 @@ void Chunk::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	else
 	{
 		target.draw(mVertices, states);
+	}
+
+	if (mHighlight)
+	{
+		sf::CircleShape shape;
+		shape.setRadius(30);
+		shape.setFillColor(sf::Color::Green);
+		shape.setOrigin(30, 30);
+		shape.setPosition(WorldHelper::toSFMLPositionFromWorldPosition(WorldHelper::toWorldPositionFromChunkPosition(mPosition)));
+
+		target.draw(shape);
 	}
 }
 
@@ -294,4 +306,14 @@ bool Chunk::isDrawLight()
 void Chunk::setDrawLight(bool pValue)
 {
 	mDrawLight = pValue;
+}
+
+bool Chunk::isHighlight()
+{
+	return mHighlight;
+}
+
+void Chunk::setHighlight(bool pValue)
+{
+	mHighlight = pValue;
 }

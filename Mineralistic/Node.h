@@ -18,5 +18,6 @@ struct Node
 	int y;
 	bool closed;
 	bool opened;
+	bool jumpable;
 };
 

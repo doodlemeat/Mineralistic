@@ -440,14 +440,11 @@ void World::spawnMonsters()
 	if (mObjectManager->getGroup("monsters")->getObjects()->size() == 1) return;
 	if (mMonsterSpawnerTimer->isExpired())
 	{
-		std::cout << "Spawning a monster" << std::endl;
-
 		// Try to spawn a monster
 		Player *player = static_cast<Player*>(mObjectManager->getObject("Player"));
 
 		sf::Vector2f playerPosition = WorldHelper::toWorldPositionFromSFMLPosition(mObjectManager->getObject("Player")->getSprite()->getPosition());
 		Chunk *playerChunk = getChunkByWorldPosition(playerPosition);
-		playerChunk->setHighlight(true);
 		sf::Vector2i avaibleChunkPositions[200];
 		int size = 0;
 
@@ -461,7 +458,6 @@ void World::spawnMonsters()
 				if ((x < -minDist || x > minDist) || (y < -minDist || y > minDist))
 				{
 					Chunk *c = playerChunk->getRelative(sf::Vector2i(x, y));
-					c->setHighlight(true);
 					Logger::vector2(sf::Vector2i(x, y));
 					avaibleChunkPositions[size] = sf::Vector2i(x, y);
 					size++;

@@ -14,6 +14,8 @@ Pathfinder::Pathfinder(World* pWorld, int pWidth, int pHeight)
 	mWorldRef = pWorld;
 	mWidth = pWidth;
 	mHeight = pHeight;
+	mStart = nullptr;
+	mGoal = nullptr;
 	mNodes = new Node[mWidth * mHeight];
 }
 
@@ -23,14 +25,17 @@ Pathfinder::~Pathfinder()
 }
 
 
-void Pathfinder::computeGrid(const sf::Vector2i &pStart, const sf::Vector2i &pGoal)
+void Pathfinder::computeGrid(sf::Vector2f pStart, sf::Vector2f pGoal)
 {
-	mStartWorldPos = pStart;
-	mGoalWorldPos = pGoal;
-	if (mStartWorldPos.x < 0) mStartWorldPos.x -= 1;
-	if (mStartWorldPos.y < 0) mStartWorldPos.y -= 1;
-	if (mGoalWorldPos.x < 0) mGoalWorldPos.x -= 1;
-	if (mGoalWorldPos.y < 0) mGoalWorldPos.y -= 1;
+	if (pStart.x <= 0.f) pStart.x = std::floor(pStart.x);
+	if (pStart.y <= 0.f) pStart.y = std::floor(pStart.y);
+
+	if (pGoal.x <= 0.f) pGoal.x = std::floor(pGoal.x);
+	if (pGoal.y <= 0.f) pGoal.y = std::floor(pGoal.y);
+
+	mStartWorldPos = sf::Vector2i(pStart);
+	mGoalWorldPos = sf::Vector2i(pGoal);
+
 	sf::Vector2f midPoint = Math::midPoint(mStartWorldPos, mGoalWorldPos);
 	mGridArea = Math::getRectByMidPoint(midPoint, mHeight, mWidth);
 }
@@ -139,6 +144,20 @@ void Pathfinder::generatePath(Node* pCurrentNode)
 	while (current->parent != nullptr)
 	{
 		mPath.push_back(current);
+		
+		int x = current->x;
+		int y = current->y;
+		if (current->parent != nullptr)
+		{
+			int px = current->parent->x;
+			int py = current->parent->y;
+
+			if (px == x && y > py)
+			{
+				current->jumpable = true;
+			}
+		}
+
 		current = current->parent;
 	}
 }
@@ -180,4 +199,97 @@ std::vector<Node*> Pathfinder::getNeighborsAdjacentTo(Node* pCurrentNode)
 		foundNeighbors.push_back(&mNodes[west_index]);
 	
 	return foundNeighbors;
+}
+
+bool Pathfinder::hasChanged(sf::Vector2f pStartPos, sf::Vector2f pGoalPos)
+{
+	if (mStart == nullptr || mGoal == nullptr) return true;
+	if (mStart->worldRef != mWorldRef->getTileByWorldPosition(pStartPos)) 
+	{
+		return true;
+	}
+	if (mGoal->worldRef != mWorldRef->getTileByWorldPosition(pGoalPos))
+	{
+		return true;
+	}
+	return false;
+}
+
+Node* Pathfinder::jump(int pX, int pY, int pPx, int pPy)
+{
+	/*int dx = pX - pPx;
+	int dy = pY - pPy;
+	int x = pX;
+	int y = pY;
+
+	Node* node = &mNodes[y * mWidth + x];
+
+	if (node->worldRef->getMaterial()->isCollidable)
+	{
+		return nullptr;
+	}
+
+	if (node == mGoal)
+	{
+		return node;
+	}
+
+	// check forced neigbors along the diagonal
+	if (dx != 0 && dy != 0)
+	{
+		if (!getNode(x - dx, y + dy).worldRef->getMaterial()->isCollidable &&
+			getNode(x - dx, y).worldRef->getMaterial()->isCollidable() ||
+			!getNode(x + dx, y - dy).worldRef->getMaterial()->isCollidable() &&
+			getNode(x, y - dy).worldRef->getMaterial()->isCollidable())
+		{
+			return node;
+		}
+	}
+	else
+	{
+		if (dx != 0)
+		{
+			if (!getNode(x + dx, y + 1).worldRef->getMaterial()->isCollidable() &&
+				getNode(x, y + 1).worldRef->getMaterial()->isCollidable() ||
+				!getNode(x + dx, y - 1).worldRef->getMaterial()->isCollidable() &&
+				getNode(x, y - 1).worldRef->getMaterial()->isCollidable())
+			{
+				return node;
+			}
+		}
+		else
+		{
+			if (!getNode(x + 1, y).worldRef->getMaterial()->isCollidable() &&
+				getNode(x + 1, y + dy).worldRef->getMaterial()->isCollidable() ||
+				!getNode(x - 1, y + dy).worldRef->getMaterial()->isCollidable() &&
+				getNode(x - 1, y).worldRef->getMaterial()->isCollidable())
+			{
+				return node;
+			}
+		}
+	}
+
+	if (dx != 0 && dy != 0)
+	{
+		if (jump(x + dx, y, x, y) != nullptr || jump(x, y + dy, x, y) != nullptr)
+		{
+			return node;
+		}
+	}
+
+	if (!getNode(x + dx, y).worldRef->getMaterial()->isCollidable() ||
+		!getNode(x, y + dy).worldRef->getMaterial()->isCollidable())
+	{
+		return jump(x + dx, y + dy, x, y);
+	}
+	else
+	{
+		return nullptr;
+	}*/
+	return nullptr;
+}
+
+Node& Pathfinder::getNode(int pX, int pY)
+{
+	return mNodes[pY * mWidth + pX];
 }

@@ -392,7 +392,7 @@ void PlayState::registerMaterials()
 	MaterialDef stoneDef(stepStoneDef);
 	stoneDef.name = "Stone";
 	stoneDef.collidable = true;
-	stoneDef.resistance = 1;
+	stoneDef.resistance = 0.1; // 1
 	stoneDef.breakBlockType = PICKAXE;
 	stoneDef.textureRect = sf::IntRect(0, 0, 64, 64);
 	mWorld->registerMaterial(new Material(&stoneDef));

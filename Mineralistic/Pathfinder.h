@@ -15,11 +15,13 @@ public:
 	Pathfinder(World* pWorld, int pWidth, int pHeight);
 	~Pathfinder();
 
-	void computeGrid(const sf::Vector2i &pStart, const sf::Vector2i &pGoal);
+	void computeGrid(sf::Vector2f pStart, sf::Vector2f pGoal);
 	void search();
 	void init();
 	void clearPath() { mPath.clear(); }
 	void generatePath(Node* pCurrentNode);
+	Node* jump(int pX, int pY, int pPx, int pPy);
+	Node& getNode(int pX, int pY);
 
 	int manhattan(Node* pN1, Node* pN2);
 
@@ -27,6 +29,7 @@ public:
 	World* getWorldRef() const;
 	Node*& getNodes() { return mNodes; }
 	std::vector<Node*> getNeighborsAdjacentTo(Node* pCurrentNode);
+	bool hasChanged(sf::Vector2f pGoalPos, sf::Vector2f pStartPos);
 private:
 	sf::Vector2i mStartWorldPos;
 	sf::Vector2i mGoalWorldPos;

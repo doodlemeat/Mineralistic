@@ -7,6 +7,7 @@ Node::Node()
 	worldRef = nullptr;
 	closed = false;
 	opened = false;
+	jumpable = false;
 	g = 0;
 	h = 0;
 	x = 0;

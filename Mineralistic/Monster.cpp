@@ -40,12 +40,21 @@ void Monster::update(float dt)
 		break;
 	}
 	case CHASING:
-	{	
-		mPathfinder->computeGrid(sf::Vector2i(WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition())),
-		sf::Vector2i(WorldHelper::toWorldPositionFromSFMLPosition(mObjectManager->getObject("Player")->getSprite()->getPosition())));
-		mPathfinder->search();
+	{
+		
+		// Start and goal position
+		sf::Vector2f monsterWorldPos = WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition());
+		sf::Vector2f playerWorldPos = WorldHelper::toWorldPositionFromSFMLPosition(mObjectManager->getObject("Player")->getSprite()->getPosition());
+		if (mPathfinder->hasChanged(monsterWorldPos, playerWorldPos))
+		{
+			mPathfinder->computeGrid(playerWorldPos, monsterWorldPos);
+			mPathfinder->search();
+		}
+		
+		// Compute distance to player in world coordinates
 		sf::Vector2f SFMLPosPlayer = mObjectManager->getObject("Player")->getSprite()->getPosition();
 		float distanceToPlayer = WorldHelper::worldDistanceBetweenSFMLPos(SFMLPosPlayer, mSprite->getPosition());
+
 		if (distanceToPlayer > 10)
 		{
 			mState = IDLING;
@@ -67,15 +76,34 @@ void Monster::update(float dt)
 
 void Monster::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
+	sf::Vector2f monsterWorldPos = WorldHelper::toWorldPositionFromSFMLPosition(mSprite->getPosition());
+	sf::CircleShape shape;
+	shape.setRadius(50);
+	shape.setOrigin(50, 50);
+	shape.setFillColor(sf::Color::Red);
+	shape.setPosition(WorldHelper::toSFMLPositionFromWorldPosition(monsterWorldPos, true));
+	target.draw(shape); 
+	
+	sf::Vector2f playerWorldPos = WorldHelper::toWorldPositionFromSFMLPosition(mObjectManager->getObject("Player")->getSprite()->getPosition());
+	shape.setRadius(50);
+	shape.setOrigin(50, 50);
+	shape.setFillColor(sf::Color::Red);
+	shape.setPosition(WorldHelper::toSFMLPositionFromWorldPosition(playerWorldPos, true));
+	target.draw(shape);
+
 	if (mState == CHASING)
 	{
 		std::vector<Node*> path = mPathfinder->getPath();
 		for (int i = 0; i < path.size(); i++)
 		{
 			sf::CircleShape shape;
-			shape.setRadius(20);
-			shape.setOrigin(20, 20);
+			shape.setRadius(40);
+			shape.setOrigin(40, 40);
 			shape.setFillColor(sf::Color::Green);
+			if (path[i]->jumpable)
+			{
+				shape.setFillColor(sf::Color::Yellow);
+			}
 			sf::Vector2f worldPos = path[i]->worldRef->getPosition();
 			sf::Vector2f SFMLPos = WorldHelper::toSFMLPositionFromWorldPosition(worldPos, true);
 			shape.setPosition(SFMLPos);

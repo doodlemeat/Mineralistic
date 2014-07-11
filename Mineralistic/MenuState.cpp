@@ -108,5 +108,7 @@ void MenuState::setupActions()
 	getActionMap()->operator[]("Menu_Select") = thor::Action(sf::Keyboard::Return, thor::Action::PressOnce);
 	getActionMap()->operator[]("Menu_Next") = thor::Action(sf::Keyboard::Down, thor::Action::PressOnce);
 	getActionMap()->operator[]("Menu_Previous") = thor::Action(sf::Keyboard::Up, thor::Action::PressOnce);
+	getActionMap()->operator[]("Menu_First") = thor::Action(sf::Keyboard::PageUp, thor::Action::PressOnce) || thor::Action(sf::Keyboard::Home, thor::Action::PressOnce);
+	getActionMap()->operator[]("Menu_Last") = thor::Action(sf::Keyboard::PageDown, thor::Action::PressOnce) || thor::Action(sf::Keyboard::End, thor::Action::PressOnce);
 	getActionMap()->operator[]("Quit") = thor::Action(sf::Keyboard::Escape, thor::Action::PressOnce);
 }

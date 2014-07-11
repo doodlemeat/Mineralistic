@@ -71,6 +71,14 @@ void Menu::update(float dt, thor::ActionMap<std::string> *pActionMap)
 	{
 		previous();
 	}
+	if (pActionMap->isActive("Menu_First"))
+	{
+		first();
+	}
+	if (pActionMap->isActive("Menu_Last"))
+	{
+		last();
+	}
 }
 
 int Menu::getCurrentID()

@@ -59,7 +59,7 @@ void MenuState::releaving()
 
 bool MenuState::update(float dt)
 {
-	mMenu.update(dt);
+	mMenu.update(dt, getActionMap());
 
 	if (getActionMap()->isActive("Start"))
 	{
@@ -82,5 +82,7 @@ void MenuState::draw()
 void MenuState::setupActions()
 {
 	getActionMap()->operator[]("Start") = thor::Action(sf::Keyboard::Return, thor::Action::PressOnce);
+	getActionMap()->operator[]("Menu_Next") = thor::Action(sf::Keyboard::Down, thor::Action::PressOnce);
+	getActionMap()->operator[]("Menu_Previous") = thor::Action(sf::Keyboard::Up, thor::Action::PressOnce);
 	getActionMap()->operator[]("Quit") = thor::Action(sf::Keyboard::Escape, thor::Action::PressOnce);
 }

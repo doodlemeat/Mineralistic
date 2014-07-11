@@ -97,10 +97,7 @@ void Menu::next()
 		first();
 		return;
 	}
-
-	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
-	mCurrentIndex++;
-	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
+	changeCurrentIndex(mCurrentIndex + 1);
 }
 void Menu::previous()
 {
@@ -109,20 +106,20 @@ void Menu::previous()
 		last();
 		return;
 	}
-
-	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
-	mCurrentIndex--;
-	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
+	changeCurrentIndex(mCurrentIndex - 1);
 }
 void Menu::first()
 {
-	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
-	mCurrentIndex = 0;
-	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
+	changeCurrentIndex(0);
 }
 void Menu::last()
 {
+	changeCurrentIndex(mItem.size() - 1);
+}
+
+void Menu::changeCurrentIndex(int newValue)
+{
 	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
-	mCurrentIndex = mItem.size() - 1;
+	mCurrentIndex = newValue;
 	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
 }

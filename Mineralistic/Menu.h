@@ -44,6 +44,7 @@ public:
 	void last();
 
 private:
+	void changeCurrentIndex(int newValue);
 
 	sf::Font mFont;
 	sf::Vector2f mPos;

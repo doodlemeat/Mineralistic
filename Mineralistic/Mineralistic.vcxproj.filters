@@ -19,6 +19,12 @@
     <Filter Include="Source Files\GameStates">
       <UniqueIdentifier>{fa91f5f3-874b-48f6-ad8b-9ea1717f0c6d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{0eebb5a5-6713-44af-a4b7-6f097d63507a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{da13a403-31da-4c72-8747-a2ec2d2b021a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -132,6 +138,9 @@
     <ClCompile Include="BinaryHeap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameEngine.h">
@@ -244,6 +253,9 @@
     </ClInclude>
     <ClInclude Include="BinaryHeap.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -11,8 +11,8 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 
 MenuState::MenuState() :
-mText(),
-mLogo()
+mLogo(),
+mMenu()
 {
 
 }
@@ -40,18 +40,9 @@ void MenuState::entering()
 	mLogo.setOrigin(rect.left + rect.width / 2.0f, rect.top + rect.height / 2.0f);
 	mLogo.setPosition(sf::Vector2f(windowSize.x / 2.0f, (windowSize.y / 2.0f) - rect.height));
 
-	// Main Menu font
-	mText.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));	
-	mText.setString("Press <enter> to Start");
-	mText.setCharacterSize(40);
-	mText.setColor(sf::Color::Red);
-
-	// Definitely centering
-	rect = mText.getLocalBounds();
-	mText.setOrigin(rect.left + rect.width  / 2.0f,
-	                rect.top  + rect.height / 2.0f);
-	mText.setPosition(sf::Vector2f(windowSize.x/2.0f, windowSize.y/2.0f));
-
+	mMenu.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));
+	mMenu.setPosition(300, 300);
+	mMenu.addItem("Start Game", 0);
 }
 void MenuState::leaving()
 {
@@ -68,6 +59,8 @@ void MenuState::releaving()
 
 bool MenuState::update(float dt)
 {
+	mMenu.update(dt);
+
 	if (getActionMap()->isActive("Start"))
 	{
 		mAssets->gameEngine->changeState(new PlayState());
@@ -83,7 +76,7 @@ bool MenuState::update(float dt)
 void MenuState::draw()
 {
 	mAssets->windowManager->getWindow()->draw(mLogo);
-	mAssets->windowManager->getWindow()->draw(mText);
+	mAssets->windowManager->getWindow()->draw(mMenu);
 }
 
 void MenuState::setupActions()

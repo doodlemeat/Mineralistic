@@ -4,7 +4,7 @@
 Menu::Menu() :
 mFont(),
 mPos(0, 0),
-mCurrentItem(nullptr)
+mCurrentIndex(-1)
 {
 
 }
@@ -12,7 +12,7 @@ mCurrentItem(nullptr)
 Menu::Menu(sf::Font font, float x = 0, float y = 0) :
 mFont(font),
 mPos(x, y),
-mCurrentItem(nullptr)
+mCurrentIndex(-1)
 {
 	setFont(font);
 	setPosition(x, y);
@@ -53,10 +53,10 @@ void Menu::addItem(std::string text, int id)
 	mItem.push_back(newItem);
 
 	// Setting colors on the items if it's highlighted
-	if (mCurrentItem == nullptr)
+	if (mCurrentIndex == -1)
 	{
-		mCurrentItem = &(mItem.back());
-		mCurrentItem->mText.setColor(sf::Color(69, 130, 196));
+		mCurrentIndex = 0;
+		mItem.at(mCurrentIndex).mText.setColor(sf::Color(69, 130, 196));
 	}
 }
 
@@ -68,7 +68,37 @@ void Menu::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	}
 }
 
-void Menu::update(float dt)
+void Menu::update(float dt, thor::ActionMap<std::string> *pActionMap)
 {
+	if (pActionMap->isActive("Menu_Next"))
+	{
+		next();
+	}
+	if (pActionMap->isActive("Menu_Previous"))
+	{
+		previous();
+	}
+}
 
+void Menu::next()
+{
+	if (mCurrentIndex >= mItem.size())
+	{
+		return;
+	}
+
+	mItem.at(mCurrentIndex).mText.setColor(sf::Color::White);
+	mCurrentIndex++;
+	mItem.at(mCurrentIndex).mText.setColor(sf::Color(69, 130, 196));
+}
+void Menu::previous()
+{
+	if (mCurrentIndex <= 0)
+	{
+		return;
+	}
+
+	mItem.at(mCurrentIndex).mText.setColor(sf::Color::White);
+	mCurrentIndex--;
+	mItem.at(mCurrentIndex).mText.setColor(sf::Color(69, 130, 196));
 }

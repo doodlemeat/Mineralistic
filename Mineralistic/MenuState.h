@@ -23,5 +23,6 @@ private:
 	
 	sf::Sprite mLogo;
 	Menu mMenu;
+
 };
 

@@ -2,6 +2,7 @@
 
 #include <SFML\Graphics\Drawable.hpp>
 #include <SFML\Graphics\Text.hpp>
+#include <Thor\Input\ActionMap.hpp>
 #include <string>
 #include <vector>
 
@@ -35,8 +36,11 @@ public:
 	/// @return -1 if no items are set.
 	int getCurrentValue();
 
-	void update(float dt);
+	void update(float dt, thor::ActionMap<std::string> *pActionMap);
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;
+
+	void next();
+	void previous();
 
 private:
 
@@ -44,6 +48,6 @@ private:
 	sf::Vector2f mPos;
 
 	std::vector<MenuItem> mItem;
-	MenuItem* mCurrentItem;
+	int mCurrentIndex;
 };
 

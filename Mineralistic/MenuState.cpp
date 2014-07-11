@@ -49,6 +49,7 @@ void MenuState::entering()
 
 	mMenu.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));
 	mMenu.setPosition(windowSize.x/2.0f, windowSize.y/2.0f);
+	mMenu.setAssets(mAssets);
 	mMenu.addItem("Start Game", MENU_ITEM_START);
 	mMenu.addItem("Options", MENU_ITEM_OPTIONS);
 	mMenu.addItem("Help", MENU_ITEM_HELP);

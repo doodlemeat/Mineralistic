@@ -1,12 +1,14 @@
 #include "Menu.h"
 #include <SFML\Graphics\RenderTarget.hpp>
+#include "AudioSystem.h"
 
 Menu::Menu() :
 mFont(),
 mPos(0, 0),
 mCurrentIndex(-1),
 mColorItem(sf::Color::White),
-mColorItemHilite(sf::Color(69, 130, 196))
+mColorItemHilite(sf::Color(69, 130, 196)),
+mAssets(nullptr)
 {
 
 }
@@ -122,4 +124,15 @@ void Menu::changeCurrentIndex(int newValue)
 	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
 	mCurrentIndex = newValue;
 	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
+
+	// Play it again, Sam!
+	if (mAssets != nullptr)
+	{
+		mAssets->audioSystem->playSound("Menu_Item", false);
+	}
+}
+
+void Menu::setAssets(GameStateAsset* asset)
+{
+	mAssets = asset;
 }

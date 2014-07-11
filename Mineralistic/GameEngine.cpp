@@ -34,6 +34,7 @@ GameEngine::GameEngine(std::string pTitle, int pWindowWidth, int pWindowHeight)
 	mAudioSystem->createSound("Monster_Groan_1", mResourceHolder->getSound("monster_groan_1.ogg"));
 	mAudioSystem->createSound("Monster_Groan_2", mResourceHolder->getSound("monster_groan_2.ogg"));
 
+	mAudioSystem->createSound("Menu_Item", mResourceHolder->getSound("menu_item.ogg"));
 	mAudioSystem->createSound("Step_1", mResourceHolder->getSound("step_1.ogg"));
 	mAudioSystem->createSound("Step_2", mResourceHolder->getSound("step_2.ogg"));
 	mAudioSystem->createSound("Step_3", mResourceHolder->getSound("step_3.ogg"));

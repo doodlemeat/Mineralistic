@@ -5,6 +5,7 @@
 #include <Thor\Input\ActionMap.hpp>
 #include <string>
 #include <vector>
+#include "GameStateAsset.h"
 
 /// Container for individual menu item's stuff.
 ///
@@ -43,6 +44,11 @@ public:
 	void first();
 	void last();
 
+	/// We only need this so we can play sounds
+	/// @todo Find better way of doing this
+	///       (should the Menu be a GameObject?)
+	void setAssets(GameStateAsset* mAsset);
+
 private:
 	void changeCurrentIndex(int newValue);
 
@@ -54,5 +60,7 @@ private:
 
 	sf::Color mColorItem;
 	sf::Color mColorItemHilite;
+
+	GameStateAsset* mAssets;
 };
 

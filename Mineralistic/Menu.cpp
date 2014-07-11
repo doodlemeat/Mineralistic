@@ -75,8 +75,9 @@ void Menu::update(float dt, thor::ActionMap<std::string> *pActionMap)
 
 void Menu::next()
 {
-	if (mCurrentIndex >= mItem.size())
+	if (mCurrentIndex >= mItem.size() - 1)
 	{
+		first();
 		return;
 	}
 
@@ -88,10 +89,23 @@ void Menu::previous()
 {
 	if (mCurrentIndex <= 0)
 	{
+		last();
 		return;
 	}
 
 	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
 	mCurrentIndex--;
+	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
+}
+void Menu::first()
+{
+	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
+	mCurrentIndex = 0;
+	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
+}
+void Menu::last()
+{
+	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
+	mCurrentIndex = mItem.size() - 1;
 	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
 }

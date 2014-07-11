@@ -40,6 +40,8 @@ public:
 
 	void next();
 	void previous();
+	void first();
+	void last();
 
 private:
 

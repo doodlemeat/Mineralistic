@@ -10,8 +10,10 @@
 #include "ObjectManager.h"
 #include "SFML/Graphics/RenderWindow.hpp"
 
-MenuState::MenuState()
+MenuState::MenuState() :
+mText()
 {
+
 }
 
 MenuState::~MenuState()
@@ -24,13 +26,19 @@ void MenuState::entering()
 	mAssets->audioSystem->playMusic("Ambient_1");
 	std::cout << "Entering menu state" << std::endl;
 
-	// Main text that will draw all the items
-	mText.setFont(mAssets->resourceHolder->getFont("consola.ttf"));
-	mText.setString("Main Menu");
-	mText.setPosition(12, 12);
+	mText.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));	
+	mText.setString("Press <enter> to Start");
 	mText.setCharacterSize(40);
 	mText.setColor(sf::Color::Red);
 
+	// Centering it on the game Window
+	sf::FloatRect textRect = mText.getLocalBounds();
+	mText.setOrigin(textRect.left + textRect.width  / 2.0f,
+	                textRect.top  + textRect.height / 2.0f);
+
+	auto size = mAssets->windowManager->getWindow()->getSize();
+	mText.setPosition(sf::Vector2f(size.x/2.0f, size.y/2.0f));
+	
 }
 
 void MenuState::leaving()
@@ -62,8 +70,6 @@ bool MenuState::update(float dt)
 
 void MenuState::draw()
 {
-	mAssets->windowManager->getWindow()->setView(mAssets->windowManager->getWindow()->getDefaultView());
-	
 	mAssets->windowManager->getWindow()->draw(mText);
 }
 

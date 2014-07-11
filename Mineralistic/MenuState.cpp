@@ -61,9 +61,16 @@ bool MenuState::update(float dt)
 {
 	mMenu.update(dt, getActionMap());
 
-	if (getActionMap()->isActive("Start"))
+	if (getActionMap()->isActive("Menu_Select"))
 	{
-		mAssets->gameEngine->changeState(new PlayState());
+		switch (mMenu.getCurrentID())
+		{
+		case 0:
+			mAssets->gameEngine->changeState(new PlayState());
+			break;
+		default:
+			break;
+		}
 		return true;
 	}
 	if (getActionMap()->isActive("Quit"))
@@ -81,7 +88,7 @@ void MenuState::draw()
 
 void MenuState::setupActions()
 {
-	getActionMap()->operator[]("Start") = thor::Action(sf::Keyboard::Return, thor::Action::PressOnce);
+	getActionMap()->operator[]("Menu_Select") = thor::Action(sf::Keyboard::Return, thor::Action::PressOnce);
 	getActionMap()->operator[]("Menu_Next") = thor::Action(sf::Keyboard::Down, thor::Action::PressOnce);
 	getActionMap()->operator[]("Menu_Previous") = thor::Action(sf::Keyboard::Up, thor::Action::PressOnce);
 	getActionMap()->operator[]("Quit") = thor::Action(sf::Keyboard::Escape, thor::Action::PressOnce);

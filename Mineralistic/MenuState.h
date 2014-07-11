@@ -1,5 +1,7 @@
 #pragma once
+
 #include "GameState.h"
+#include "SFML\Graphics\Text.hpp"
 
 class MenuState : public GameState
 {
@@ -16,5 +18,8 @@ public:
 	void setupActions();
 
 private:
+
+	sf::Text mText;
+
 };
 

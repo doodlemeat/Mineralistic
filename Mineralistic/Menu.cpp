@@ -40,9 +40,15 @@ void Menu::addItem(std::string text, int id)
 
 	newItem.mText.setFont(mFont);
 	newItem.mText.setString(text);
-	newItem.mText.setPosition(mPos);
-	newItem.mText.setColor(sf::Color::Red);
+	newItem.mText.setColor(sf::Color::White);
 	newItem.mText.setCharacterSize(40);
+
+	// Will pull down this item depending on how much
+	// items this Menu already have
+	sf::Vector2f newPosition;
+	newPosition.x = mPos.x;
+	newPosition.y = mPos.y + (mItem.size() * newItem.mText.getLocalBounds().height);
+	newItem.mText.setPosition(newPosition);
 
 	mItem.push_back(newItem);
 }

@@ -27,22 +27,22 @@ void MenuState::entering()
 	mAssets->audioSystem->playMusic("Ambient_1");
 	std::cout << "Entering menu state" << std::endl;
 
-	// These will be used to center elements
-	// relative to the game Window
 	auto windowSize = mAssets->windowManager->getWindow()->getSize();
-	sf::FloatRect rect;
 	
 	// Awesome game logo!
 	mLogo.setTexture(mAssets->resourceHolder->getTexture("logo.png"));
 
 	// Centering and moving a little up
-	rect = mLogo.getLocalBounds();
+	sf::FloatRect rect = mLogo.getLocalBounds();
 	mLogo.setOrigin(rect.left + rect.width / 2.0f, rect.top + rect.height / 2.0f);
 	mLogo.setPosition(sf::Vector2f(windowSize.x / 2.0f, (windowSize.y / 2.0f) - rect.height));
 
 	mMenu.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));
-	mMenu.setPosition(300, 300);
+	mMenu.setPosition(windowSize.x/2.0f, windowSize.y/2.0f);
 	mMenu.addItem("Start Game", 0);
+	mMenu.addItem("Options", 1);
+	mMenu.addItem("Help", 2);
+	mMenu.addItem("Quit", 3);
 }
 void MenuState::leaving()
 {

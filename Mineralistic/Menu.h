@@ -20,7 +20,6 @@ class Menu : public sf::Drawable
 {
 public:
 	Menu();
-	Menu(sf::Font font, float x, float y);
 	~Menu();
 
 	void setFont(sf::Font font);
@@ -49,5 +48,8 @@ private:
 
 	std::vector<MenuItem> mItem;
 	int mCurrentIndex;
+
+	sf::Color mColorItem;
+	sf::Color mColorItemHilite;
 };
 

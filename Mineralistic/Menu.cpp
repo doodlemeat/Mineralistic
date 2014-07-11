@@ -4,18 +4,11 @@
 Menu::Menu() :
 mFont(),
 mPos(0, 0),
-mCurrentIndex(-1)
+mCurrentIndex(-1),
+mColorItem(sf::Color::White),
+mColorItemHilite(sf::Color(69, 130, 196))
 {
 
-}
-
-Menu::Menu(sf::Font font, float x = 0, float y = 0) :
-mFont(font),
-mPos(x, y),
-mCurrentIndex(-1)
-{
-	setFont(font);
-	setPosition(x, y);
 }
 
 Menu::~Menu()
@@ -40,7 +33,7 @@ void Menu::addItem(std::string text, int id)
 
 	newItem.mText.setFont(mFont);
 	newItem.mText.setString(text);
-	newItem.mText.setColor(sf::Color::White);
+	newItem.mText.setColor(mColorItem);
 	newItem.mText.setCharacterSize(40);
 
 	// Will pull down this item depending on how much
@@ -56,7 +49,7 @@ void Menu::addItem(std::string text, int id)
 	if (mCurrentIndex == -1)
 	{
 		mCurrentIndex = 0;
-		mItem.at(mCurrentIndex).mText.setColor(sf::Color(69, 130, 196));
+		mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
 	}
 }
 
@@ -87,9 +80,9 @@ void Menu::next()
 		return;
 	}
 
-	mItem.at(mCurrentIndex).mText.setColor(sf::Color::White);
+	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
 	mCurrentIndex++;
-	mItem.at(mCurrentIndex).mText.setColor(sf::Color(69, 130, 196));
+	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
 }
 void Menu::previous()
 {
@@ -98,7 +91,7 @@ void Menu::previous()
 		return;
 	}
 
-	mItem.at(mCurrentIndex).mText.setColor(sf::Color::White);
+	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
 	mCurrentIndex--;
-	mItem.at(mCurrentIndex).mText.setColor(sf::Color(69, 130, 196));
+	mItem.at(mCurrentIndex).mText.setColor(mColorItemHilite);
 }

@@ -2,6 +2,7 @@
 
 #include "GameState.h"
 #include "SFML\Graphics\Text.hpp"
+#include "SFML\Graphics\Sprite.hpp"
 
 class MenuState : public GameState
 {
@@ -18,7 +19,8 @@ public:
 	void setupActions();
 
 private:
-
+	
+	sf::Sprite mLogo;
 	sf::Text mText;
 
 };

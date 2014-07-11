@@ -11,7 +11,8 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 
 MenuState::MenuState() :
-mText()
+mText(),
+mLogo()
 {
 
 }
@@ -26,21 +27,32 @@ void MenuState::entering()
 	mAssets->audioSystem->playMusic("Ambient_1");
 	std::cout << "Entering menu state" << std::endl;
 
+	// These will be used to center elements
+	// relative to the game Window
+	auto windowSize = mAssets->windowManager->getWindow()->getSize();
+	sf::FloatRect rect;
+	
+	// Awesome game logo!
+	mLogo.setTexture(mAssets->resourceHolder->getTexture("logo.png"));
+
+	// Centering and moving a little up
+	rect = mLogo.getLocalBounds();
+	mLogo.setOrigin(rect.left + rect.width / 2.0f, rect.top + rect.height / 2.0f);
+	mLogo.setPosition(sf::Vector2f(windowSize.x / 2.0f, (windowSize.y / 2.0f) - rect.height));
+
+	// Main Menu font
 	mText.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));	
 	mText.setString("Press <enter> to Start");
 	mText.setCharacterSize(40);
 	mText.setColor(sf::Color::Red);
 
-	// Centering it on the game Window
-	sf::FloatRect textRect = mText.getLocalBounds();
-	mText.setOrigin(textRect.left + textRect.width  / 2.0f,
-	                textRect.top  + textRect.height / 2.0f);
+	// Definitely centering
+	rect = mText.getLocalBounds();
+	mText.setOrigin(rect.left + rect.width  / 2.0f,
+	                rect.top  + rect.height / 2.0f);
+	mText.setPosition(sf::Vector2f(windowSize.x/2.0f, windowSize.y/2.0f));
 
-	auto size = mAssets->windowManager->getWindow()->getSize();
-	mText.setPosition(sf::Vector2f(size.x/2.0f, size.y/2.0f));
-	
 }
-
 void MenuState::leaving()
 {
 	std::cout << "Leaving menu state" << std::endl;
@@ -70,6 +82,7 @@ bool MenuState::update(float dt)
 
 void MenuState::draw()
 {
+	mAssets->windowManager->getWindow()->draw(mLogo);
 	mAssets->windowManager->getWindow()->draw(mText);
 }
 

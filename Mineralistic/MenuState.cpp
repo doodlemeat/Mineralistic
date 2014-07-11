@@ -10,6 +10,16 @@
 #include "ObjectManager.h"
 #include "SFML/Graphics/RenderWindow.hpp"
 
+// This is a local enum simply to make adding
+// items to the Menu easier to read
+enum MenuItemIDs 
+{
+	MENU_ITEM_START=0,
+	MENU_ITEM_OPTIONS,
+	MENU_ITEM_HELP,
+	MENU_ITEM_EXIT
+};
+
 MenuState::MenuState() :
 mLogo(),
 mMenu()
@@ -39,10 +49,10 @@ void MenuState::entering()
 
 	mMenu.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));
 	mMenu.setPosition(windowSize.x/2.0f, windowSize.y/2.0f);
-	mMenu.addItem("Start Game", 0);
-	mMenu.addItem("Options", 1);
-	mMenu.addItem("Help", 2);
-	mMenu.addItem("Quit", 3);
+	mMenu.addItem("Start Game", MENU_ITEM_START);
+	mMenu.addItem("Options", MENU_ITEM_OPTIONS);
+	mMenu.addItem("Help", MENU_ITEM_HELP);
+	mMenu.addItem("Quit", MENU_ITEM_EXIT);
 }
 void MenuState::leaving()
 {
@@ -65,8 +75,15 @@ bool MenuState::update(float dt)
 	{
 		switch (mMenu.getCurrentID())
 		{
-		case 0:
+		case MENU_ITEM_START:
 			mAssets->gameEngine->changeState(new PlayState());
+			break;
+		case MENU_ITEM_OPTIONS:
+			break;
+		case MENU_ITEM_HELP:
+			break;
+		case MENU_ITEM_EXIT:
+			return false;
 			break;
 		default:
 			break;

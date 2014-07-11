@@ -30,10 +30,10 @@ public:
 	/// @param id Unique identifier for this item.
 	void addItem(std::string text, int id);
 
-	/// Returns the custom value of the current item.
+	/// Returns the identifier of the current item.
 	///
 	/// @return -1 if no items are set.
-	int getCurrentValue();
+	int getCurrentID();
 
 	void update(float dt, thor::ActionMap<std::string> *pActionMap);
 	void draw(sf::RenderTarget &target, sf::RenderStates states) const;

@@ -73,6 +73,15 @@ void Menu::update(float dt, thor::ActionMap<std::string> *pActionMap)
 	}
 }
 
+int Menu::getCurrentID()
+{
+	if (mCurrentIndex == -1)
+	{
+		// No items added until now
+		return -1;
+	}
+	return mItem.at(mCurrentIndex).mID;
+}
 void Menu::next()
 {
 	if (mCurrentIndex >= mItem.size() - 1)

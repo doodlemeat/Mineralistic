@@ -45,6 +45,5 @@ private:
 
 	std::vector<MenuItem> mItem;
 	MenuItem* mCurrentItem;
-
 };
 

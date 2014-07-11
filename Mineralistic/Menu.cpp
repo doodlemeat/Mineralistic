@@ -51,6 +51,13 @@ void Menu::addItem(std::string text, int id)
 	newItem.mText.setPosition(newPosition);
 
 	mItem.push_back(newItem);
+
+	// Setting colors on the items if it's highlighted
+	if (mCurrentItem == nullptr)
+	{
+		mCurrentItem = &(mItem.back());
+		mCurrentItem->mText.setColor(sf::Color(69, 130, 196));
+	}
 }
 
 void Menu::draw(sf::RenderTarget &target, sf::RenderStates states) const

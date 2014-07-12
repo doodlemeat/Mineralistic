@@ -16,6 +16,7 @@ public:
 
 	void setFont(sf::Font font);
 	void setPosition(float x, float y);
+	sf::Vector2f getPosition();
 
 	/// Inserts an item with specified text.
 	///

@@ -4,6 +4,7 @@
 #include "SFML\Graphics\Text.hpp"
 #include "SFML\Graphics\Sprite.hpp"
 #include "ButtonList.h"
+#include "PopUp.h"
 
 class MenuState : public GameState
 {
@@ -24,5 +25,6 @@ private:
 	sf::Sprite mLogo;
 	ButtonList mButtonList;
 
+	PopUp mPopUpHelp;
 };
 

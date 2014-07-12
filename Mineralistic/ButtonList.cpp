@@ -1,8 +1,8 @@
-#include "Menu.h"
+#include "ButtonList.h"
 #include <SFML\Graphics\RenderTarget.hpp>
 #include "AudioSystem.h"
 
-Menu::Menu() :
+ButtonList::ButtonList() :
 mFont(),
 mPos(0, 0),
 mCurrentIndex(-1),
@@ -13,24 +13,24 @@ mAssets(nullptr)
 
 }
 
-Menu::~Menu()
+ButtonList::~ButtonList()
 {
 
 }
 
-void Menu::setFont(sf::Font font)
+void ButtonList::setFont(sf::Font font)
 {
 	mFont = font;
 }
 
-void Menu::setPosition(float x, float y)
+void ButtonList::setPosition(float x, float y)
 {
 	mPos = sf::Vector2f(x, y);
 }
 
-void Menu::addItem(std::string text, int id)
+void ButtonList::addItem(std::string text, int id)
 {
-	MenuItem newItem;
+	Button newItem;
 	newItem.mID = id;
 
 	newItem.mText.setFont(mFont);
@@ -39,7 +39,7 @@ void Menu::addItem(std::string text, int id)
 	newItem.mText.setCharacterSize(40);
 
 	// Will pull down this item depending on how much
-	// items this Menu already have
+	// items this ButtonList already have
 	sf::Vector2f newPosition;
 	newPosition.x = mPos.x;
 	newPosition.y = mPos.y + (mItem.size() * newItem.mText.getLocalBounds().height);
@@ -55,7 +55,7 @@ void Menu::addItem(std::string text, int id)
 	}
 }
 
-void Menu::draw(sf::RenderTarget &target, sf::RenderStates states) const
+void ButtonList::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
 	for (auto item : mItem)
 	{
@@ -63,27 +63,27 @@ void Menu::draw(sf::RenderTarget &target, sf::RenderStates states) const
 	}
 }
 
-void Menu::update(float dt, thor::ActionMap<std::string> *pActionMap)
+void ButtonList::update(float dt, thor::ActionMap<std::string> *pActionMap)
 {
-	if (pActionMap->isActive("Menu_Next"))
+	if (pActionMap->isActive("ButtonList_Next"))
 	{
 		next();
 	}
-	if (pActionMap->isActive("Menu_Previous"))
+	if (pActionMap->isActive("ButtonList_Previous"))
 	{
 		previous();
 	}
-	if (pActionMap->isActive("Menu_First"))
+	if (pActionMap->isActive("ButtonList_First"))
 	{
 		first();
 	}
-	if (pActionMap->isActive("Menu_Last"))
+	if (pActionMap->isActive("ButtonList_Last"))
 	{
 		last();
 	}
 }
 
-int Menu::getCurrentID()
+int ButtonList::getCurrentID()
 {
 	if (mCurrentIndex == -1)
 	{
@@ -92,7 +92,7 @@ int Menu::getCurrentID()
 	}
 	return mItem.at(mCurrentIndex).mID;
 }
-void Menu::next()
+void ButtonList::next()
 {
 	if (mCurrentIndex >= mItem.size() - 1)
 	{
@@ -101,7 +101,7 @@ void Menu::next()
 	}
 	changeCurrentIndex(mCurrentIndex + 1);
 }
-void Menu::previous()
+void ButtonList::previous()
 {
 	if (mCurrentIndex <= 0)
 	{
@@ -110,16 +110,16 @@ void Menu::previous()
 	}
 	changeCurrentIndex(mCurrentIndex - 1);
 }
-void Menu::first()
+void ButtonList::first()
 {
 	changeCurrentIndex(0);
 }
-void Menu::last()
+void ButtonList::last()
 {
 	changeCurrentIndex(mItem.size() - 1);
 }
 
-void Menu::changeCurrentIndex(int newValue)
+void ButtonList::changeCurrentIndex(int newValue)
 {
 	mItem.at(mCurrentIndex).mText.setColor(mColorItem);
 	mCurrentIndex = newValue;
@@ -132,7 +132,7 @@ void Menu::changeCurrentIndex(int newValue)
 	}
 }
 
-void Menu::setAssets(GameStateAsset* asset)
+void ButtonList::setAssets(GameStateAsset* asset)
 {
 	mAssets = asset;
 }

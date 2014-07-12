@@ -22,7 +22,7 @@ enum MenuItemIDs
 
 MenuState::MenuState() :
 mLogo(),
-mMenu()
+mButtonList()
 {
 
 }
@@ -47,13 +47,13 @@ void MenuState::entering()
 	mLogo.setOrigin(rect.left + rect.width / 2.0f, rect.top + rect.height / 2.0f);
 	mLogo.setPosition(sf::Vector2f(windowSize.x / 2.0f, (windowSize.y / 2.0f) - rect.height));
 
-	mMenu.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));
-	mMenu.setPosition(windowSize.x/2.0f, windowSize.y/2.0f);
-	mMenu.setAssets(mAssets);
-	mMenu.addItem("Start Game", MENU_ITEM_START);
-	mMenu.addItem("Options", MENU_ITEM_OPTIONS);
-	mMenu.addItem("Help", MENU_ITEM_HELP);
-	mMenu.addItem("Quit", MENU_ITEM_EXIT);
+	mButtonList.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));
+	mButtonList.setPosition(windowSize.x/2.0f, windowSize.y/2.0f);
+	mButtonList.setAssets(mAssets);
+	mButtonList.addItem("Start Game", MENU_ITEM_START);
+	mButtonList.addItem("Options", MENU_ITEM_OPTIONS);
+	mButtonList.addItem("Help", MENU_ITEM_HELP);
+	mButtonList.addItem("Quit", MENU_ITEM_EXIT);
 }
 void MenuState::leaving()
 {
@@ -70,11 +70,11 @@ void MenuState::releaving()
 
 bool MenuState::update(float dt)
 {
-	mMenu.update(dt, getActionMap());
+	mButtonList.update(dt, getActionMap());
 
-	if (getActionMap()->isActive("Menu_Select"))
+	if (getActionMap()->isActive("ButtonList_Select"))
 	{
-		switch (mMenu.getCurrentID())
+		switch (mButtonList.getCurrentID())
 		{
 		case MENU_ITEM_START:
 			mAssets->gameEngine->changeState(new PlayState());
@@ -101,15 +101,15 @@ bool MenuState::update(float dt)
 void MenuState::draw()
 {
 	mAssets->windowManager->getWindow()->draw(mLogo);
-	mAssets->windowManager->getWindow()->draw(mMenu);
+	mAssets->windowManager->getWindow()->draw(mButtonList);
 }
 
 void MenuState::setupActions()
 {
-	getActionMap()->operator[]("Menu_Select") = thor::Action(sf::Keyboard::Return, thor::Action::PressOnce);
-	getActionMap()->operator[]("Menu_Next") = thor::Action(sf::Keyboard::Down, thor::Action::PressOnce);
-	getActionMap()->operator[]("Menu_Previous") = thor::Action(sf::Keyboard::Up, thor::Action::PressOnce);
-	getActionMap()->operator[]("Menu_First") = thor::Action(sf::Keyboard::PageUp, thor::Action::PressOnce) || thor::Action(sf::Keyboard::Home, thor::Action::PressOnce);
-	getActionMap()->operator[]("Menu_Last") = thor::Action(sf::Keyboard::PageDown, thor::Action::PressOnce) || thor::Action(sf::Keyboard::End, thor::Action::PressOnce);
+	getActionMap()->operator[]("ButtonList_Select") = thor::Action(sf::Keyboard::Return, thor::Action::PressOnce);
+	getActionMap()->operator[]("ButtonList_Next") = thor::Action(sf::Keyboard::Down, thor::Action::PressOnce);
+	getActionMap()->operator[]("ButtonList_Previous") = thor::Action(sf::Keyboard::Up, thor::Action::PressOnce);
+	getActionMap()->operator[]("ButtonList_First") = thor::Action(sf::Keyboard::PageUp, thor::Action::PressOnce) || thor::Action(sf::Keyboard::Home, thor::Action::PressOnce);
+	getActionMap()->operator[]("ButtonList_Last") = thor::Action(sf::Keyboard::PageDown, thor::Action::PressOnce) || thor::Action(sf::Keyboard::End, thor::Action::PressOnce);
 	getActionMap()->operator[]("Quit") = thor::Action(sf::Keyboard::Escape, thor::Action::PressOnce);
 }

@@ -6,22 +6,13 @@
 #include <string>
 #include <vector>
 #include "GameStateAsset.h"
+#include "Button.h"
 
-/// Container for individual menu item's stuff.
-///
-/// You should never mess with this. The *Menu* class handles
-/// it all internally.
-struct MenuItem
-{
-	sf::Text mText;
-	int mID;
-};
-
-class Menu : public sf::Drawable
+class ButtonList : public sf::Drawable
 {
 public:
-	Menu();
-	~Menu();
+	ButtonList();
+	~ButtonList();
 
 	void setFont(sf::Font font);
 	void setPosition(float x, float y);
@@ -46,7 +37,7 @@ public:
 
 	/// We only need this so we can play sounds
 	/// @todo Find better way of doing this
-	///       (should the Menu be a GameObject?)
+	///       (should the ButtonList be a GameObject?)
 	void setAssets(GameStateAsset* mAsset);
 
 private:
@@ -55,7 +46,7 @@ private:
 	sf::Font mFont;
 	sf::Vector2f mPos;
 
-	std::vector<MenuItem> mItem;
+	std::vector<Button> mItem;
 	int mCurrentIndex;
 
 	sf::Color mColorItem;

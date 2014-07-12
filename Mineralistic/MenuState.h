@@ -3,7 +3,7 @@
 #include "GameState.h"
 #include "SFML\Graphics\Text.hpp"
 #include "SFML\Graphics\Sprite.hpp"
-#include "Menu.h"
+#include "ButtonList.h"
 
 class MenuState : public GameState
 {
@@ -22,7 +22,7 @@ public:
 private:
 	
 	sf::Sprite mLogo;
-	Menu mMenu;
+	ButtonList mButtonList;
 
 };
 

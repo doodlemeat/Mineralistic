@@ -9,6 +9,7 @@
 #include "WindowManager.h"
 #include "ObjectManager.h"
 #include "SFML/Graphics/RenderWindow.hpp"
+#include "SFML/Graphics/CircleShape.hpp"
 
 // This is a local enum simply to make adding
 // items to the Menu easier to read
@@ -70,6 +71,15 @@ void MenuState::releaving()
 
 bool MenuState::update(float dt)
 {
+	if (mPopUpHelp.isActive())
+	{
+		if (getActionMap()->isActive("ButtonList_Select"))
+		{
+			mPopUpHelp.deactivate();
+		}
+		return true;
+	}
+
 	mButtonList.update(dt, getActionMap());
 
 	if (getActionMap()->isActive("ButtonList_Select"))
@@ -82,6 +92,7 @@ bool MenuState::update(float dt)
 		case MENU_ITEM_OPTIONS:
 			break;
 		case MENU_ITEM_HELP:
+			mPopUpHelp.activate();
 			break;
 		case MENU_ITEM_EXIT:
 			return false;
@@ -100,6 +111,15 @@ bool MenuState::update(float dt)
 
 void MenuState::draw()
 {
+	if (mPopUpHelp.isActive())
+	{
+		sf::CircleShape circle;
+		circle.setRadius(40);
+		circle.setPosition(sf::Vector2f(300, 300));
+
+		mAssets->windowManager->getWindow()->draw(circle);
+	}
+
 	mAssets->windowManager->getWindow()->draw(mLogo);
 	mAssets->windowManager->getWindow()->draw(mButtonList);
 }

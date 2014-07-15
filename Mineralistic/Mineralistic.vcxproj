@@ -105,6 +105,7 @@
     <ClCompile Include="Pathfinder.cpp" />
     <ClCompile Include="PhysicsHelper.cpp" />
     <ClCompile Include="PhysicsScale.cpp" />
+    <ClCompile Include="PopUp.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileStop.cpp" />
     <ClCompile Include="B2UserData.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="PhysicsScale.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayState.h" />
+    <ClInclude Include="PopUp.h" />
     <ClInclude Include="ResourceHolder.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileStop.h" />

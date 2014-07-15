@@ -8,8 +8,9 @@
 #include "ResourceHolder.h"
 #include "WindowManager.h"
 #include "ObjectManager.h"
-#include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/Graphics/CircleShape.hpp"
+#include <SFML\Graphics\RenderWindow.hpp>
+#include <SFML\Graphics\CircleShape.hpp>
+#include <SFML\Graphics\RectangleShape.hpp>
 
 // This is a local enum simply to make adding
 // items to the Menu easier to read
@@ -73,7 +74,8 @@ bool MenuState::update(float dt)
 {
 	if (mPopUpHelp.isActive())
 	{
-		if (getActionMap()->isActive("ButtonList_Select"))
+		if (getActionMap()->isActive("ButtonList_Select") ||
+		   (getActionMap()->isActive("Quit")))
 		{
 			mPopUpHelp.deactivate();
 		}
@@ -111,17 +113,49 @@ bool MenuState::update(float dt)
 
 void MenuState::draw()
 {
-	if (mPopUpHelp.isActive())
-	{
-		sf::CircleShape circle;
-		circle.setRadius(40);
-		circle.setPosition(sf::Vector2f(300, 300));
-
-		mAssets->windowManager->getWindow()->draw(circle);
-	}
-
 	mAssets->windowManager->getWindow()->draw(mLogo);
 	mAssets->windowManager->getWindow()->draw(mButtonList);
+
+	// Help pop up must always be drawn last
+	if (mPopUpHelp.isActive())
+	{
+		// Drawing the whole Help screen
+		static sf::RectangleShape bg;
+		if (bg.getSize().x == 0)
+		{
+			// Initializing background for the first time
+			bg.setSize(sf::Vector2f(430, 300));
+			bg.setPosition(sf::Vector2f(mButtonList.getPosition().x - bg.getSize().x, mButtonList.getPosition().y - 50));
+			
+			bg.setFillColor(sf::Color(255, 255, 255, 100));
+			bg.setOutlineColor(sf::Color(255, 255, 255, 200));
+		}
+
+		static sf::Text text;
+		if (text.getString() == "")
+		{
+			// Initializing text for the first time
+			text.setFont(mAssets->resourceHolder->getFont("loaded.ttf"));
+			text.setCharacterSize(30);
+			text.setColor(sf::Color::White);
+			text.setPosition(bg.getPosition().x + 5, bg.getPosition().y);
+
+			std::string output = "";
+			// This looks alright in-game
+			// (even if it looks broken here)
+			output += "Arrow keys         walk\n";
+			output += "c                       dig\n";
+			output += "z              put torch\n";
+			output += "x             throw rope\n";
+			output += "F1          debug screen\n";
+			output += "ESC                   quit\n";
+
+			text.setString(output);
+		}
+
+		mAssets->windowManager->getWindow()->draw(text);
+		mAssets->windowManager->getWindow()->draw(bg);
+	}
 }
 
 void MenuState::setupActions()

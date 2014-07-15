@@ -27,6 +27,10 @@ void ButtonList::setPosition(float x, float y)
 {
 	mPos = sf::Vector2f(x, y);
 }
+sf::Vector2f ButtonList::getPosition()
+{
+	return mPos;
+}
 
 void ButtonList::addItem(std::string text, int id)
 {
